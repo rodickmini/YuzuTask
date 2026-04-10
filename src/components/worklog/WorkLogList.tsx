@@ -11,9 +11,11 @@ import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
 import { formatDuration, formatRelativeDate } from '../../utils/date';
+import { useTranslation } from 'react-i18next';
 
 export default function WorkLogList() {
   const { state, dispatch } = useAppState();
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -47,14 +49,14 @@ export default function WorkLogList() {
     const logs = [...state.workLogs, log];
     await storage.saveWorkLogs(logs);
     setShowForm(false);
-    showToast('工作记录已添加~');
+    showToast(t('worklog.added'));
   };
 
   const handleDelete = async (id: string) => {
     dispatch({ type: 'DELETE_WORKLOG', payload: id });
     const logs = state.workLogs.filter(l => l.id !== id);
     await storage.saveWorkLogs(logs);
-    showToast('记录已删除');
+    showToast(t('worklog.deleted'));
   };
 
   const todayMinutes = state.workLogs
@@ -66,9 +68,9 @@ export default function WorkLogList() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-          <span className="text-base">📝</span> 工作记录
+          <span className="text-base">📝</span> {t('worklog.title')}
           <span className="text-xs text-text-sub font-normal">
-            今日 {formatDuration(todayMinutes)}
+            {t('worklog.today')} {formatDuration(todayMinutes)}
           </span>
         </h3>
         <div className="flex items-center gap-2">
@@ -86,7 +88,7 @@ export default function WorkLogList() {
             onClick={() => setShowForm(true)}
             className="flex items-center gap-1 px-3 py-1.5 bg-mint text-white rounded-xl text-xs font-medium shadow-soft hover:bg-mint/90 transition-colors"
           >
-            <Plus size={14} /> 记录
+            <Plus size={14} /> {t('worklog.record')}
           </motion.button>
         </div>
       </div>
@@ -118,13 +120,13 @@ export default function WorkLogList() {
           animate="animate"
           className="flex items-center gap-2 mb-2 text-xs"
         >
-          <span className="text-text-sub">筛选：</span>
+          <span className="text-text-sub">{t('worklog.filter')}</span>
           <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full">{formatRelativeDate(selectedDate)}</span>
           <button
             onClick={() => setSelectedDate(null)}
             className="text-text-sub hover:text-primary"
           >
-            ✕ 清除
+            ✕ {t('worklog.clearFilter')}
           </button>
         </motion.div>
       )}
@@ -185,7 +187,7 @@ export default function WorkLogList() {
             className="text-center text-text-sub text-sm py-8"
           >
             <p className="text-2xl mb-2">📚</p>
-            <p>{selectedDate ? '这天没有记录哦~' : '还没有工作记录，开始记录吧~'}</p>
+            <p>{selectedDate ? t('worklog.emptyDay') : t('worklog.emptyState')}</p>
           </motion.div>
         )}
       </div>
@@ -194,7 +196,7 @@ export default function WorkLogList() {
       <Modal
         isOpen={showForm}
         onClose={() => setShowForm(false)}
-        title="添加工作记录"
+        title={t('worklog.addWorkLog')}
       >
         <WorkLogForm
           tags={allTags}

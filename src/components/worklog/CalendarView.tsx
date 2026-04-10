@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { format, isSameDay, addWeeks, subWeeks } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { WorkLog } from '../../types';
 import { useState } from 'react';
+import { getDateFnsLocale } from '../../utils/date';
 
 interface CalendarViewProps {
   workLogs: WorkLog[];
@@ -47,7 +47,7 @@ export default function CalendarView({ workLogs, selectedDate, onSelectDate }: C
           <ChevronLeft size={16} className="text-text-sub" />
         </button>
         <span className="text-xs font-medium text-text-main">
-          {format(weekDays[0], 'M月d日', { locale: zhCN })} - {format(weekDays[6], 'M月d日', { locale: zhCN })}
+          {format(weekDays[0], 'MMM d', { locale: getDateFnsLocale() })} - {format(weekDays[6], 'MMM d', { locale: getDateFnsLocale() })}
         </span>
         <button onClick={() => setWeekOffset(prev => prev + 1)} className="p-1 rounded-lg hover:bg-warm-dark">
           <ChevronRight size={16} className="text-text-sub" />
@@ -76,7 +76,7 @@ export default function CalendarView({ workLogs, selectedDate, onSelectDate }: C
               }`}
             >
               <span className="text-[10px] opacity-60">
-                {format(day, 'EEE', { locale: zhCN })}
+                {format(day, 'EEE', { locale: getDateFnsLocale() })}
               </span>
               <span className={`text-sm font-medium ${isToday ? 'text-primary' : ''}`}>
                 {format(day, 'd')}

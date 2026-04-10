@@ -8,6 +8,7 @@ import { fadeInUp } from '../ui/animations';
 import { useTagSelection } from '../../hooks/useTagSelection';
 import { generateId } from '../../utils/storage';
 import { toISODateString } from '../../utils/date';
+import { useTranslation } from 'react-i18next';
 
 interface WorkLogFormProps {
   tags: string[];
@@ -16,6 +17,7 @@ interface WorkLogFormProps {
 }
 
 export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps) {
+  const { t } = useTranslation();
   const [content, setContent] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('');
   const { selectedTags, toggleTag } = useTagSelection();
@@ -45,7 +47,7 @@ export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps
       className="space-y-3"
     >
       <textarea
-        placeholder="记录一下你做了什么..."
+        placeholder={t('worklog.contentPlaceholder')}
         value={content}
         onChange={e => setContent(e.target.value)}
         autoFocus
@@ -55,7 +57,7 @@ export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps
       <div className="flex gap-3">
         <div className="flex-1">
           <Input
-            label="时长(分钟)"
+            label={t('worklog.duration')}
             type="number"
             placeholder="30"
             value={durationMinutes}
@@ -64,7 +66,7 @@ export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps
         </div>
         <div className="flex-1">
           <Input
-            label="日期"
+            label={t('worklog.date')}
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
@@ -75,8 +77,8 @@ export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps
       <TagSelector tags={tags} selectedTags={selectedTags} onToggle={toggleTag} />
 
       <div className="flex justify-end gap-2 pt-1">
-        <Button variant="ghost" type="button" onClick={onCancel}>取消</Button>
-        <Button type="submit">记录</Button>
+        <Button variant="ghost" type="button" onClick={onCancel}>{t('worklog.cancel')}</Button>
+        <Button type="submit">{t('worklog.record')}</Button>
       </div>
     </motion.form>
   );
