@@ -46,3 +46,16 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - TypeScript requires explicit `cause?: unknown` property declaration on custom Error subclasses (ES2022 `Error.cause` isn't in TS lib types by default)
   - All UI components must use storage.ts, not chrome.storage directly — added this to Codebase Patterns
 ---
+
+## Thu Apr 10 17:00 - US-004
+- Refactored store/index.tsx: added `error: string | null` to AppState, exported `Action` discriminated union type, added `SET_ERROR` action
+- Wrapped initial load and refresh callbacks in try/catch with SET_ERROR dispatch
+- Memoized context value with `useMemo` to prevent unnecessary re-renders from new object references
+- Used `finally` block in initial load to ensure SET_LOADING(false) always fires
+- Files changed: `src/store/index.tsx`
+- **Learnings for future iterations:**
+  - The store already had a well-structured discriminated union for actions — main gaps were missing error state and unmemoized context value
+  - `useMemo` on the context value is a simple win for reducing unnecessary consumer re-renders
+  - Exporting the `Action` type allows components to import it for dispatch typing if needed
+---
+---
