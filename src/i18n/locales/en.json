@@ -127,7 +127,8 @@
     "noInProgress": "(No tasks in progress)",
     "toBeFilled": "(To be filled)",
     "none": "(None)",
-    "totalLabel": "Total"
+    "totalLabel": "Total",
+    "dayTotal": "(Total: {{duration}})"
   },
   "settings": {
     "title": "Settings",

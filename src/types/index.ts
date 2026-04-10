@@ -64,19 +64,19 @@ export const DEFAULT_SETTINGS: UserSettings = {
     enabled: true,
     dayOfWeek: 5,
     time: '08:00',
-    template: `本周工作总结
+    template: `{{t:report.weekTitle}}
 ================
 
-一、本周完成事项：
+{{t:report.completedSection}}
 {{completedItems}}
 
-二、进行中的工作：
+{{t:report.inProgressSection}}
 {{inProgressItems}}
 
-三、下周计划：
+{{t:report.nextWeekSection}}
 {{nextWeekPlan}}
 
-四、需要协调的事项：
+{{t:report.blockersSection}}
 {{blockers}}`,
     dateRange: 'mon-sun',
   },
@@ -84,18 +84,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
 };
 
 export const PRIORITY_CONFIG = {
-  high: { label: '高', color: 'bg-accent', textColor: 'text-accent' },
-  medium: { label: '中', color: 'bg-cream', textColor: 'text-cream' },
-  low: { label: '低', color: 'bg-mint', textColor: 'text-mint' },
+  high: { label: 'task.priorityHigh', color: 'bg-accent', textColor: 'text-accent' },
+  medium: { label: 'task.priorityMedium', color: 'bg-cream', textColor: 'text-cream' },
+  low: { label: 'task.priorityLow', color: 'bg-mint', textColor: 'text-mint' },
 } as const;
-
-export const ENCOURAGEMENTS = [
-  '专注中，你真棒~',
-  '加油鸭，马上就好啦！',
-  '静下心来，一切都会好的',
-  '每一步都算数哦~',
-  '深呼吸，你可以的！',
-  '专注是一种超能力~',
-  '今天也是元气满满的一天',
-  '慢慢来，比较快~',
-];

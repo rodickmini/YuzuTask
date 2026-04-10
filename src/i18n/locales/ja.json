@@ -127,7 +127,8 @@
     "noInProgress": "（進行中のタスクなし）",
     "toBeFilled": "（未記入）",
     "none": "（なし）",
-    "totalLabel": "合計"
+    "totalLabel": "合計",
+    "dayTotal": "（合計 {{duration}}）"
   },
   "settings": {
     "title": "設定",

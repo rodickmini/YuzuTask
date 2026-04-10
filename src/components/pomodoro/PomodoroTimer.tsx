@@ -3,13 +3,14 @@ import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useAppState } from '../../store';
 import type { PomodoroSession, WorkLog } from '../../types';
-import { ENCOURAGEMENTS } from '../../types';
+import { useTranslation } from '../../i18n';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
 import { toISODateString } from '../../utils/date';
 
 export default function PomodoroTimer() {
   const { state, dispatch } = useAppState();
+  const { t } = useTranslation();
   const { settings } = state;
 
   const [isRunning, setIsRunning] = useState(false);
@@ -28,9 +29,10 @@ export default function PomodoroTimer() {
 
   // Pick random encouragement
   useEffect(() => {
-    const idx = Math.floor(Math.random() * ENCOURAGEMENTS.length);
-    setEncouragement(ENCOURAGEMENTS[idx]);
-  }, [isRunning]);
+    const encouragements = t('encouragements', { returnObjects: true }) as string[];
+    const idx = Math.floor(Math.random() * encouragements.length);
+    setEncouragement(encouragements[idx]);
+  }, [isRunning, t]);
 
   const stopTimer = useCallback(() => {
     if (intervalRef.current) {

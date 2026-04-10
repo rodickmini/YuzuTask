@@ -1,6 +1,31 @@
 // Background Service Worker for YuzuTask
 // Handles alarms and notifications
 
+import i18n from 'i18next';
+import zh from '../i18n/locales/zh.json';
+import en from '../i18n/locales/en.json';
+import ja from '../i18n/locales/ja.json';
+
+function detectLanguage(): string {
+  const lang = navigator.language;
+  if (lang.startsWith('zh')) return 'zh';
+  if (lang.startsWith('ja')) return 'ja';
+  return 'en';
+}
+
+i18n.init({
+  resources: {
+    zh: { translation: zh },
+    en: { translation: en },
+    ja: { translation: ja },
+  },
+  lng: detectLanguage(),
+  fallbackLng: 'zh',
+  interpolation: { escapeValue: false },
+});
+
+const t = i18n.t.bind(i18n);
+
 // --- Notification click handler ---
 // Opens/focuses a new tab when user clicks a notification
 chrome.notifications.onClicked.addListener((_notificationId) => {
@@ -29,16 +54,16 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     chrome.notifications.create('weekly-report-reminder', {
       type: 'basic',
       iconUrl: 'icons/icon-128.png',
-      title: 'YuzuTask 周报提醒',
-      message: '该写周报啦~ 点击新标签页生成本周周报吧！',
+      title: t('notification.weeklyTitle'),
+      message: t('notification.weeklyMessage'),
       priority: 2,
     });
   } else if (alarm.name === 'pomodoro-end') {
     chrome.notifications.create('pomodoro-end', {
       type: 'basic',
       iconUrl: 'icons/icon-128.png',
-      title: '番茄钟结束',
-      message: '专注时间结束啦，休息一下吧~',
+      title: t('notification.pomodoroTitle'),
+      message: t('notification.pomodoroMessage'),
       priority: 2,
     });
   }

@@ -127,7 +127,8 @@
     "noInProgress": "（暂无进行中任务）",
     "toBeFilled": "（待补充）",
     "none": "（暂无）",
-    "totalLabel": "共"
+    "totalLabel": "共",
+    "dayTotal": "（共 {{duration}}）"
   },
   "settings": {
     "title": "设置",

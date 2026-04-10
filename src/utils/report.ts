@@ -1,7 +1,14 @@
 import type { WorkLog, Task, WeeklyReportConfig } from '../types';
 import { format, parseISO } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
-import { getWeekDays, toISODateString, formatDuration } from './date';
+import i18n from '../i18n';
+import { getWeekDays, toISODateString, formatDuration, getDateFnsLocale } from './date';
+
+function getDateFormat(): string {
+  const lang = i18n.language;
+  if (lang.startsWith('zh')) return 'M月d日 EEEE';
+  if (lang.startsWith('ja')) return 'M月d日(E)';
+  return 'MMM d, EEEE';
+}
 
 export function generateWeeklyReport(
   workLogs: WorkLog[],
@@ -9,19 +16,22 @@ export function generateWeeklyReport(
   config: WeeklyReportConfig,
   referenceDate: Date = new Date()
 ): string {
+  const t = i18n.t.bind(i18n);
+  const locale = getDateFnsLocale();
+
   const weekDays = getWeekDays(referenceDate, config.dateRange);
   const weekStart = toISODateString(weekDays[0]);
   const weekEnd = toISODateString(weekDays[weekDays.length - 1]);
 
   // Filter logs and tasks for this week
   const weekLogs = workLogs.filter(log => log.date >= weekStart && log.date <= weekEnd);
-  const weekTasks = tasks.filter(t => {
-    const created = t.createdAt.substring(0, 10);
+  const weekTasks = tasks.filter(task => {
+    const created = task.createdAt.substring(0, 10);
     return created >= weekStart && created <= weekEnd;
   });
 
-  const completedTasks = weekTasks.filter(t => t.status === 'done');
-  const inProgressTasks = weekTasks.filter(t => t.status === 'in_progress' || t.status === 'todo');
+  const completedTasks = weekTasks.filter(task => task.status === 'done');
+  const inProgressTasks = weekTasks.filter(task => task.status === 'in_progress' || task.status === 'todo');
 
   // Group logs by date
   const logsByDate = new Map<string, WorkLog[]>();
@@ -35,20 +45,20 @@ export function generateWeeklyReport(
   let completedItems = '';
   if (completedTasks.length > 0) {
     completedItems = completedTasks
-      .map(t => `  - ${t.title}${t.tags.length > 0 ? ` (${t.tags.map(tag => '#' + tag).join(' ')})` : ''}`)
+      .map(task => `  - ${task.title}${task.tags.length > 0 ? ` (${task.tags.map(tag => '#' + tag).join(' ')})` : ''}`)
       .join('\n');
   } else {
-    completedItems = '  （暂无已完成任务）';
+    completedItems = `  ${t('report.noCompleted')}`;
   }
 
   // Build in progress section
   let inProgressItems = '';
   if (inProgressTasks.length > 0) {
     inProgressItems = inProgressTasks
-      .map(t => `  - ${t.title} [${t.status === 'in_progress' ? '进行中' : '待办'}]`)
+      .map(task => `  - ${task.title} [${task.status === 'in_progress' ? t('task.inProgress') : t('task.todo')}]`)
       .join('\n');
   } else {
-    inProgressItems = '  （暂无进行中任务）';
+    inProgressItems = `  ${t('report.noInProgress')}`;
   }
 
   // Build work log summary by day
@@ -56,29 +66,32 @@ export function generateWeeklyReport(
     .filter(day => logsByDate.has(toISODateString(day)))
     .map(day => {
       const dateStr = toISODateString(day);
-      const dayLabel = format(parseISO(dateStr), 'M月d日 EEEE', { locale: zhCN });
+      const dayLabel = format(parseISO(dateStr), getDateFormat(), { locale });
       const logs = logsByDate.get(dateStr) || [];
       const totalMinutes = logs.reduce((sum, l) => sum + l.durationMinutes, 0);
       const items = logs.map(l => `    - ${l.content} (${formatDuration(l.durationMinutes)})`).join('\n');
-      return `  ${dayLabel}（共 ${formatDuration(totalMinutes)}）\n${items}`;
+      return `  ${dayLabel}${t('report.dayTotal', { duration: formatDuration(totalMinutes) })}\n${items}`;
     })
     .join('\n\n');
 
-  // Replace template placeholders
+  // Resolve i18n placeholders in template
   let report = config.template;
+  report = report.replace(/\{\{t:([\w.]+)\}\}/g, (_, key) => t(key));
+
+  // Replace data placeholders
   report = report.replace('{{completedItems}}', completedItems);
   report = report.replace('{{inProgressItems}}', inProgressItems);
-  report = report.replace('{{nextWeekPlan}}', '  （待补充）');
-  report = report.replace('{{blockers}}', '  （暂无）');
+  report = report.replace('{{nextWeekPlan}}', `  ${t('report.toBeFilled')}`);
+  report = report.replace('{{blockers}}', `  ${t('report.none')}`);
 
   // Add daily log section if there's data
   if (dailySummary) {
-    report += `\n\n五、每日工作明细：\n${dailySummary}`;
+    report += `\n\n${t('report.dailyDetailSection')}\n${dailySummary}`;
   }
 
   // Add summary stats
   const totalMinutes = weekLogs.reduce((sum, l) => sum + l.durationMinutes, 0);
-  report += `\n\n--- 统计 ---\n本周共记录 ${formatDuration(totalMinutes)}，完成 ${completedTasks.length} 项任务`;
+  report += `\n\n${t('report.statsHeader')}\n${t('report.totalRecorded')} ${formatDuration(totalMinutes)}，${completedTasks.length} ${t('report.tasksCompleted')}`;
 
   return report;
 }
