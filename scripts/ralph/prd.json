@@ -81,7 +81,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Japanese encouragement messages should be authentic Japanese phrases, not just translations."
     },
     {

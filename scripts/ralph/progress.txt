@@ -76,3 +76,15 @@ Started: Fri Apr 10 20:28:09 CST 2026
   - `t(label, label)` second arg is defaultValue — if i18n key has no match, displays the key itself (useful for user-created tags that don't start with 'tag.')
   - TaskItem.tsx had no hardcoded text — formatDuration and formatRelativeDate are already i18n'd from US-002
 ---
+
+## [2026-04-10] - US-005
+- Replaced all 8 remaining hardcoded Chinese strings in PomodoroTimer.tsx with i18n t() calls
+- Strings replaced: title/breakTitle, selectTask placeholder, emptyState, startFocus/startBreak, resume/pause, focusDone/breakDone toast messages, focusComplete prefix in work log content
+- All locale keys (pomodoro.*) and encouragements were already in locale files from US-001
+- No locale file changes needed — only PomodoroTimer.tsx was modified
+- Files changed: src/components/pomodoro/PomodoroTimer.tsx
+- **Learnings for future iterations:**
+  - PomodoroTimer already had useTranslation and encouragement loading from US-002, only UI label strings needed replacing
+  - `pomodoro.focusComplete` is used as a prefix concatenated with task title — works because locale value ends with full-width colon (：)
+  - showToast messages can accept i18n t() calls directly since they expect strings
+---
