@@ -1,0 +1,150 @@
+{
+  "project": "YuzuTask",
+  "branchName": "ralph/i18n",
+  "description": "Add multi-language (i18n) support for Chinese, English, and Japanese",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Set up i18n infrastructure with react-i18next",
+      "description": "As a developer, I need a lightweight i18n solution set up so all components can use translated strings.",
+      "acceptanceCriteria": [
+        "Install i18next and react-i18next",
+        "Create src/i18n/index.ts with i18n initialization",
+        "Create src/i18n/locales/zh.json with all Chinese strings",
+        "Create src/i18n/locales/en.json with all English strings",
+        "Create src/i18n/locales/ja.json with all Japanese strings",
+        "Language detection from browser locale (navigator.language), fallback to 'zh'",
+        "Wrap AppProvider with I18nextProvider in src/newtab/main.tsx",
+        "Export useTranslation hook for components to use",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Do NOT use i18next-browser-languagedetector plugin to keep bundle small. Simple navigator.language check is enough for a Chrome extension. The locale JSON files should contain ALL hardcoded Chinese/English text from the entire codebase."
+    },
+    {
+      "id": "US-002",
+      "title": "Internationalize types, utils, and constants",
+      "description": "As a developer, I need hardcoded strings in types/index.ts, utils/report.ts, utils/date.ts, and utils/storage.ts to use i18n.",
+      "acceptanceCriteria": [
+        "src/types/index.ts: DEFAULT_SETTINGS uses i18n-safe values, ENCOURAGEMENTS array moved to locale files, PRIORITY_CONFIG labels moved to locale files",
+        "src/utils/report.ts: all Chinese template strings use t() function or accept translated strings",
+        "src/utils/date.ts: date formatting uses locale-aware functions from date-fns (zhCN, enUS, ja locales)",
+        "src/utils/storage.ts: Chinese error messages moved to locale files",
+        "src/background/index.ts: notification title and message use locale strings",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Background service worker cannot use React hooks. For background.ts, import i18next directly and call t() from the i18n instance. Initialize i18n in background.ts separately with the same config."
+    },
+    {
+      "id": "US-003",
+      "title": "Internationalize layout components (Header, BottomBar, NewTab)",
+      "description": "As a user, the greeting messages, navigation labels, and loading text should display in my language.",
+      "acceptanceCriteria": [
+        "src/components/layout/Header.tsx: all greeting messages moved to locale files, emoji preserved",
+        "src/components/layout/BottomBar.tsx: navigation labels from locale files",
+        "src/newtab/NewTab.tsx: loading text if any from locale files",
+        "All three components use useTranslation hook",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Keep the greeting emoji and time formatting logic in the component, only externalize the text strings."
+    },
+    {
+      "id": "US-004",
+      "title": "Internationalize task components (TaskList, TaskItem, TaskForm, TaskFilter)",
+      "description": "As a user, all task management UI text should be in my language.",
+      "acceptanceCriteria": [
+        "src/components/task/TaskList.tsx: button labels, empty state text, modal titles from locale files",
+        "src/components/task/TaskItem.tsx: any UI labels from locale files",
+        "src/components/task/TaskForm.tsx: form labels, placeholders, button text, priority labels from locale files",
+        "src/components/task/TaskFilter.tsx: filter labels from locale files",
+        "All components use useTranslation hook",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Default tags like #工作 #开发 should also be in locale files so they display in the user's language."
+    },
+    {
+      "id": "US-005",
+      "title": "Internationalize pomodoro timer",
+      "description": "As a user, the pomodoro timer UI text and encouragement messages should be in my language.",
+      "acceptanceCriteria": [
+        "src/components/pomodoro/PomodoroTimer.tsx: all UI labels from locale files",
+        "Encouragement messages loaded from locale files (zh.json, en.json, ja.json each have their own set)",
+        "Status labels from locale files",
+        "Task selector placeholder text from locale files",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Japanese encouragement messages should be authentic Japanese phrases, not just translations."
+    },
+    {
+      "id": "US-006",
+      "title": "Internationalize work log components (WorkLogList, WorkLogForm, CalendarView)",
+      "description": "As a user, work log UI text should be in my language.",
+      "acceptanceCriteria": [
+        "src/components/worklog/WorkLogList.tsx: button labels, empty state, date group headers, total hours label from locale files",
+        "src/components/worklog/WorkLogForm.tsx: form labels, placeholders, button text from locale files",
+        "src/components/worklog/CalendarView.tsx: any UI labels from locale files",
+        "All components use useTranslation hook",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Internationalize weekly report component",
+      "description": "As a user, the weekly report UI and generated report text should be in my language.",
+      "acceptanceCriteria": [
+        "src/components/weekly/WeeklyReport.tsx: all UI labels, stats labels, button text from locale files",
+        "Report template default content uses locale-aware strings",
+        "Generated report text from locale files",
+        "Settings modal labels from locale files",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "The weekly report template is user-customizable, so only the DEFAULT template should be locale-aware."
+    },
+    {
+      "id": "US-008",
+      "title": "Internationalize settings page and shared UI components",
+      "description": "As a user, settings page labels and shared UI component text should be in my language.",
+      "acceptanceCriteria": [
+        "src/components/settings/SettingsPage.tsx: all section titles, labels, button text, confirmation dialogs from locale files",
+        "src/components/ui/Modal.tsx: close button text from locale",
+        "src/components/ui/Toast.tsx: any default text from locale",
+        "src/components/ui/Tag.tsx and TagSelector.tsx: any labels from locale",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add language switcher UI",
+      "description": "As a user, I want a language selector in the settings page so I can switch between Chinese, English, and Japanese.",
+      "acceptanceCriteria": [
+        "Add a language selector in SettingsPage with options: 简体中文, English, 日本語",
+        "Selected language is saved to chrome.storage.local and persisted across sessions",
+        "Language change takes effect immediately without page reload",
+        "date-fns locale also switches accordingly (zhCN/enUS/ja)",
+        "Language selector appears at the top of the settings page",
+        "Typecheck passes",
+        "Verify in browser"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Store the language preference as 'yuzutask_language' in chrome.storage.local. On init, check this key first, then fall back to navigator.language."
+    }
+  ]
+}
