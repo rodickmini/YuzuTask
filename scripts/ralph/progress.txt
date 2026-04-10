@@ -108,3 +108,18 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - Forms in modals benefit from `fadeInUp` (spring) over `cardIn` (tween) for a more playful feel
   - Manual browser verification is needed to confirm all animations feel right in practice
 ---
+
+## Thu Apr 10 19:00 - US-008
+- Added `chrome.notifications.onClicked` handler to open new tab when user clicks a notification
+- Added input validation in `onInstalled` handler: guards against missing `weeklyReport` config and invalid field types
+- Added input validation in `SET_WEEKLY_ALARM` message handler: validates config shape before setting alarm
+- Added input validation in `CANCEL_ALARM` message handler: validates alarm name, returns `wasCleared` status
+- Changed alarm listener from two `if` blocks to `if/else if` for cleaner differentiation
+- Added time format validation in `setupWeeklyAlarm`: checks HH:MM format and valid ranges (0-23 hours, 0-59 minutes)
+- Files changed: `src/background/index.ts`
+- **Learnings for future iterations:**
+  - TypeScript flags unused callback parameters with TS6133 — prefix with underscore to suppress
+  - `chrome.alarms.clear()` returns a Promise<boolean> indicating whether the alarm existed
+  - `chrome.notifications.onClicked` opens a new tab via `chrome.tabs.create({ url: chrome.runtime.getURL('index.html') })`
+  - Service worker runs in extension context — direct `chrome.*` API calls are fine (no need for storage.ts abstraction)
+---
