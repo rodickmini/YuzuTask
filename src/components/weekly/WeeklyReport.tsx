@@ -4,7 +4,8 @@ import { Copy, FileText, Settings, Check } from 'lucide-react';
 import { useAppState } from '../../store';
 import { generateWeeklyReport } from '../../utils/report';
 import { format } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { getDateFnsLocale } from '../../utils/date';
+import { useTranslation } from '../../i18n';
 import { showToast } from '../ui/Toast';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
@@ -14,6 +15,7 @@ import type { UserSettings } from '../../types';
 
 export default function WeeklyReport() {
   const { state, dispatch } = useAppState();
+  const { t } = useTranslation();
   const [report, setReport] = useState('');
   const [isGenerated, setIsGenerated] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -32,7 +34,7 @@ export default function WeeklyReport() {
     monday.setDate(now.getDate() + mondayOffset);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
-    return `${format(monday, 'M月d日', { locale: zhCN })} - ${format(sunday, 'M月d日', { locale: zhCN })}`;
+    return `${format(monday, 'MMM d', { locale: getDateFnsLocale() })} - ${format(sunday, 'MMM d', { locale: getDateFnsLocale() })}`;
   }, []);
 
   const handleGenerate = () => {
@@ -43,17 +45,17 @@ export default function WeeklyReport() {
     );
     setReport(reportText);
     setIsGenerated(true);
-    showToast('周报已生成~ ✨');
+    showToast(t('weekly.generated'));
   };
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(report);
       setCopied(true);
-      showToast('已复制到剪贴板~');
+      showToast(t('weekly.copiedToClipboard'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showToast('复制失败，请手动复制', 'error');
+      showToast(t('weekly.copyFailed'), 'error');
     }
   };
 
@@ -70,14 +72,14 @@ export default function WeeklyReport() {
     dispatch({ type: 'SET_SETTINGS', payload: newSettings });
     await storage.saveSettings(newSettings);
     setShowSettings(false);
-    showToast('周报设置已保存~');
+    showToast(t('weekly.settingsSaved'));
   };
 
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-          <span className="text-base">📊</span> 周报生成器
+          <span className="text-base">📊</span> {t('weekly.title')}
         </h3>
         <div className="flex items-center gap-2">
           <motion.button
@@ -95,7 +97,7 @@ export default function WeeklyReport() {
       <div className="bg-white rounded-2xl p-4 shadow-card mb-4">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-text-main font-medium">
-            本周：{weekLabel}
+            {t('weekly.currentWeek')}{weekLabel}
           </span>
         </div>
         <div className="grid grid-cols-3 gap-3 text-center">
@@ -111,7 +113,7 @@ export default function WeeklyReport() {
                 return new Date(l.date) >= monday;
               }).length}
             </div>
-            <div className="text-xs text-text-sub">工作记录</div>
+            <div className="text-xs text-text-sub">{t('weekly.workLogs')}</div>
           </div>
           <div>
             <div className="text-2xl font-light text-mint">
@@ -125,7 +127,7 @@ export default function WeeklyReport() {
                 return t.status === 'done' && new Date(t.completedAt || t.createdAt) >= monday;
               }).length}
             </div>
-            <div className="text-xs text-text-sub">已完成任务</div>
+            <div className="text-xs text-text-sub">{t('weekly.completedTasks')}</div>
           </div>
           <div>
             <div className="text-2xl font-light text-cream">
@@ -144,7 +146,7 @@ export default function WeeklyReport() {
                 return total >= 60 ? `${Math.round(total / 60 * 10) / 10}h` : `${total}m`;
               })()}
             </div>
-            <div className="text-xs text-text-sub">总工时</div>
+            <div className="text-xs text-text-sub">{t('weekly.totalHours')}</div>
           </div>
         </div>
       </div>
@@ -157,9 +159,9 @@ export default function WeeklyReport() {
           className="flex-1 flex flex-col items-center justify-center"
         >
           <FileText size={48} className="text-primary/30 mb-4" />
-          <p className="text-text-sub text-sm mb-4">基于本周的工作记录和任务自动生成周报</p>
+          <p className="text-text-sub text-sm mb-4">{t('weekly.description')}</p>
           <Button onClick={handleGenerate} size="lg">
-            生成本周周报
+            {t('weekly.generate')}
           </Button>
         </motion.div>
       )}
@@ -172,13 +174,13 @@ export default function WeeklyReport() {
           className="flex-1 flex flex-col min-h-0"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-text-sub">可直接编辑后复制</span>
+            <span className="text-xs text-text-sub">{t('weekly.editableTip')}</span>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={handleGenerate}>
-                重新生成
+                {t('weekly.regenerate')}
               </Button>
               <Button size="sm" onClick={handleCopy} icon={copied ? <Check size={14} /> : <Copy size={14} />}>
-                {copied ? '已复制' : '复制'}
+                {copied ? t('weekly.copied') : t('weekly.copy')}
               </Button>
             </div>
           </div>
@@ -194,24 +196,24 @@ export default function WeeklyReport() {
       <Modal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
-        title="周报设置"
+        title={t('weekly.settings')}
       >
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-text-sub block mb-1">提醒生成周报的时间</label>
+            <label className="text-xs text-text-sub block mb-1">{t('weekly.reminderTime')}</label>
             <div className="flex gap-3">
               <select
                 value={reportDay}
                 onChange={e => setReportDay(parseInt(e.target.value))}
                 className="flex-1 px-3 py-2 bg-white border border-warm-dark rounded-xl text-sm outline-none focus:border-primary"
               >
-                <option value={1}>周一</option>
-                <option value={2}>周二</option>
-                <option value={3}>周三</option>
-                <option value={4}>周四</option>
-                <option value={5}>周五</option>
-                <option value={6}>周六</option>
-                <option value={0}>周日</option>
+                <option value={1}>{t('weekly.day.1')}</option>
+                <option value={2}>{t('weekly.day.2')}</option>
+                <option value={3}>{t('weekly.day.3')}</option>
+                <option value={4}>{t('weekly.day.4')}</option>
+                <option value={5}>{t('weekly.day.5')}</option>
+                <option value={6}>{t('weekly.day.6')}</option>
+                <option value={0}>{t('weekly.day.0')}</option>
               </select>
               <Input
                 type="time"
@@ -223,9 +225,9 @@ export default function WeeklyReport() {
           </div>
 
           <div>
-            <label className="text-xs text-text-sub block mb-1">周报模板</label>
+            <label className="text-xs text-text-sub block mb-1">{t('weekly.template')}</label>
             <p className="text-xs text-text-sub/60 mb-2">
-              可用占位符：{'{{completedItems}}'} {'{{inProgressItems}}'} {'{{nextWeekPlan}}'} {'{{blockers}}'}
+              {t('weekly.templateHint')}{'{{completedItems}}'} {'{{inProgressItems}}'} {'{{nextWeekPlan}}'} {'{{blockers}}'}
             </p>
             <textarea
               value={template}
@@ -235,8 +237,8 @@ export default function WeeklyReport() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setShowSettings(false)}>取消</Button>
-            <Button onClick={handleSaveSettings}>保存</Button>
+            <Button variant="ghost" onClick={() => setShowSettings(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSaveSettings}>{t('common.save')}</Button>
           </div>
         </div>
       </Modal>

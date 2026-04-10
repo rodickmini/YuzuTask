@@ -1,4 +1,8 @@
 {
+  "common": {
+    "cancel": "取消",
+    "save": "保存"
+  },
   "nav": {
     "home": "首页",
     "worklog": "记录",
@@ -100,6 +104,7 @@
     "settings": "周报设置",
     "reminderTime": "提醒生成周报的时间",
     "template": "周报模板",
+    "templateHint": "可用占位符：",
     "generated": "周报已生成~ ✨",
     "copiedToClipboard": "已复制到剪贴板~",
     "copyFailed": "复制失败，请手动复制",

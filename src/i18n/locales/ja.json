@@ -1,4 +1,8 @@
 {
+  "common": {
+    "cancel": "キャンセル",
+    "save": "保存"
+  },
   "nav": {
     "home": "ホーム",
     "worklog": "記録",
@@ -100,6 +104,7 @@
     "settings": "週報設定",
     "reminderTime": "リマインダー時間",
     "template": "週報テンプレート",
+    "templateHint": "使用可能なプレースホルダー：",
     "generated": "週報を生成しました~ ✨",
     "copiedToClipboard": "クリップボードにコピーしました~",
     "copyFailed": "コピーに失敗しました、手動でコピーしてください",

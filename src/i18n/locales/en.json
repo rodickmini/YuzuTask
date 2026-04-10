@@ -1,4 +1,8 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "nav": {
     "home": "Home",
     "worklog": "Records",
@@ -100,6 +104,7 @@
     "settings": "Report Settings",
     "reminderTime": "Reminder time",
     "template": "Report Template",
+    "templateHint": "Available placeholders: ",
     "generated": "Report generated~ ✨",
     "copiedToClipboard": "Copied to clipboard~",
     "copyFailed": "Copy failed, please copy manually",
