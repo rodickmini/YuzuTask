@@ -151,7 +151,9 @@
     "clearDataConfirm": "Are you sure you want to clear all data? This action cannot be undone.",
     "clearData": "Clear All Data",
     "saveSettings": "Save Settings",
-    "saved": "Settings saved~"
+    "saved": "Settings saved~",
+    "languageSection": "🌐 Language",
+    "language": "Language"
   },
   "date": {
     "today": "Today",

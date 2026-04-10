@@ -151,7 +151,9 @@
     "clearDataConfirm": "确定要清除所有数据吗？此操作不可恢复。",
     "clearData": "清除所有数据",
     "saveSettings": "保存设置",
-    "saved": "设置已保存~"
+    "saved": "设置已保存~",
+    "languageSection": "🌐 语言",
+    "language": "语言"
   },
   "date": {
     "today": "今天",

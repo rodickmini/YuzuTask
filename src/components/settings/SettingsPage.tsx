@@ -1,21 +1,31 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppState } from '../../store';
-import { useTranslation } from '../../i18n';
+import { useTranslation, changeLanguage } from '../../i18n';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
 
+const LANGUAGES = [
+  { value: 'zh', label: '简体中文' },
+  { value: 'en', label: 'English' },
+  { value: 'ja', label: '日本語' },
+] as const;
+
 export default function SettingsPage() {
   const { state, dispatch } = useAppState();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [focusMinutes, setFocusMinutes] = useState(state.settings.pomodoroFocusMinutes.toString());
   const [breakMinutes, setBreakMinutes] = useState(state.settings.pomodoroBreakMinutes.toString());
   const [longBreakMinutes, setLongBreakMinutes] = useState(state.settings.longBreakMinutes.toString());
   const [longBreakInterval, setLongBreakInterval] = useState(state.settings.longBreakInterval.toString());
   const [newTag, setNewTag] = useState('');
   const [tags, setTags] = useState(state.settings.customTags);
+
+  const handleLanguageChange = async (lang: string) => {
+    await changeLanguage(lang);
+  };
 
   const handleSave = async () => {
     const settings = {
@@ -52,6 +62,26 @@ export default function SettingsPage() {
       <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
         <span className="text-base">⚙️</span> {t('settings.title')}
       </h3>
+
+      {/* Language selector */}
+      <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
+        <h4 className="text-sm font-medium text-text-main">{t('settings.languageSection')}</h4>
+        <div className="flex gap-2">
+          {LANGUAGES.map(lang => (
+            <button
+              key={lang.value}
+              onClick={() => handleLanguageChange(lang.value)}
+              className={`px-4 py-2 rounded-xl text-sm transition-colors ${
+                i18n.language === lang.value
+                  ? 'bg-primary text-white'
+                  : 'bg-warm text-text-main hover:bg-warm-dark'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Pomodoro settings */}
       <div className="bg-white rounded-2xl p-4 shadow-card space-y-4">

@@ -151,7 +151,9 @@
     "clearDataConfirm": "すべてのデータを削除しますか？この操作は元に戻せません。",
     "clearData": "すべてのデータを削除",
     "saveSettings": "設定を保存",
-    "saved": "設定を保存しました~"
+    "saved": "設定を保存しました~",
+    "languageSection": "🌐 言語",
+    "language": "言語"
   },
   "date": {
     "today": "今日",
