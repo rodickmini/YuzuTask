@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import type { Task, WorkLog, UserSettings, AppView } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import * as storage from '../utils/storage';
@@ -9,9 +9,10 @@ interface AppState {
   settings: UserSettings;
   currentView: AppView;
   isLoading: boolean;
+  error: string | null;
 }
 
-type Action =
+export type Action =
   | { type: 'SET_TASKS'; payload: Task[] }
   | { type: 'ADD_TASK'; payload: Task }
   | { type: 'UPDATE_TASK'; payload: Task }
@@ -21,7 +22,8 @@ type Action =
   | { type: 'DELETE_WORKLOG'; payload: string }
   | { type: 'SET_SETTINGS'; payload: UserSettings }
   | { type: 'SET_VIEW'; payload: AppView }
-  | { type: 'SET_LOADING'; payload: boolean };
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -45,6 +47,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, currentView: action.payload };
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload };
     default:
       return state;
   }
@@ -56,6 +60,7 @@ const initialState: AppState = {
   settings: DEFAULT_SETTINGS,
   currentView: 'home',
   isLoading: true,
+  error: null,
 };
 
 interface AppContextType {
@@ -71,31 +76,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const refreshTasks = useCallback(async () => {
-    const tasks = await storage.getTasks();
-    dispatch({ type: 'SET_TASKS', payload: tasks });
+    try {
+      const tasks = await storage.getTasks();
+      dispatch({ type: 'SET_TASKS', payload: tasks });
+    } catch (err) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh tasks' });
+    }
   }, []);
 
   const refreshWorkLogs = useCallback(async () => {
-    const logs = await storage.getWorkLogs();
-    dispatch({ type: 'SET_WORKLOGS', payload: logs });
+    try {
+      const logs = await storage.getWorkLogs();
+      dispatch({ type: 'SET_WORKLOGS', payload: logs });
+    } catch (err) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh work logs' });
+    }
   }, []);
 
   useEffect(() => {
     (async () => {
-      const [tasks, workLogs, settings] = await Promise.all([
-        storage.getTasks(),
-        storage.getWorkLogs(),
-        storage.getSettings(),
-      ]);
-      dispatch({ type: 'SET_TASKS', payload: tasks });
-      dispatch({ type: 'SET_WORKLOGS', payload: workLogs });
-      dispatch({ type: 'SET_SETTINGS', payload: settings });
-      dispatch({ type: 'SET_LOADING', payload: false });
+      try {
+        const [tasks, workLogs, settings] = await Promise.all([
+          storage.getTasks(),
+          storage.getWorkLogs(),
+          storage.getSettings(),
+        ]);
+        dispatch({ type: 'SET_TASKS', payload: tasks });
+        dispatch({ type: 'SET_WORKLOGS', payload: workLogs });
+        dispatch({ type: 'SET_SETTINGS', payload: settings });
+      } catch (err) {
+        dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
     })();
   }, []);
 
+  const contextValue = useMemo<AppContextType>(
+    () => ({ state, dispatch, refreshTasks, refreshWorkLogs }),
+    [state, dispatch, refreshTasks, refreshWorkLogs],
+  );
+
   return (
-    <AppContext.Provider value={{ state, dispatch, refreshTasks, refreshWorkLogs }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
