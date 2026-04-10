@@ -11,8 +11,10 @@ import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
 import { toISODateString } from '../../utils/date';
+import { useTranslation } from '../../i18n';
 
 export default function TaskList() {
+  const { t } = useTranslation();
   const { state, dispatch } = useAppState();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
@@ -51,12 +53,12 @@ export default function TaskList() {
       dispatch({ type: 'ADD_TASK', payload: task });
       const updated = [...state.tasks, task];
       await storage.saveTasks(updated);
-      showToast('任务已添加~');
+      showToast(t('task.added'));
     } else {
       dispatch({ type: 'UPDATE_TASK', payload: task });
       const updated = state.tasks.map(t => t.id === task.id ? task : t);
       await storage.saveTasks(updated);
-      showToast('任务已更新~');
+      showToast(t('task.updated'));
     }
     setShowForm(false);
     setEditingTask(undefined);
@@ -73,7 +75,7 @@ export default function TaskList() {
     const tasks = state.tasks.map(t => t.id === task.id ? updated : t);
     await storage.saveTasks(tasks);
     if (!isDone) {
-      showToast('完成啦！真棒~ 🌸');
+      showToast(t('task.done'));
     }
   };
 
@@ -81,14 +83,14 @@ export default function TaskList() {
     dispatch({ type: 'DELETE_TASK', payload: id });
     const tasks = state.tasks.filter(t => t.id !== id);
     await storage.saveTasks(tasks);
-    showToast('任务已删除');
+    showToast(t('task.deleted'));
   };
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-          <span className="text-base">📋</span> 今日待办
+          <span className="text-base">📋</span> {t('task.todayTodo')}
           <span className="text-xs text-text-sub font-normal">({todayTasks.length})</span>
         </h3>
         <motion.button
@@ -97,7 +99,7 @@ export default function TaskList() {
           onClick={() => { setEditingTask(undefined); setShowForm(true); }}
           className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-xl text-xs font-medium shadow-soft hover:bg-primary-dark transition-colors"
         >
-          <Plus size={14} /> 添加
+          <Plus size={14} /> {t('task.add')}
         </motion.button>
       </div>
 
@@ -126,7 +128,7 @@ export default function TaskList() {
 
         {doneTasks.length > 0 && (
           <>
-            <div className="text-xs text-text-sub py-1 px-1 mt-2">已完成 ({doneTasks.length})</div>
+            <div className="text-xs text-text-sub py-1 px-1 mt-2">{t('task.completed')} ({doneTasks.length})</div>
             <AnimatePresence mode="popLayout">
               {doneTasks.map(task => (
                 <TaskItem
@@ -149,7 +151,7 @@ export default function TaskList() {
             className="text-center text-text-sub text-sm py-8"
           >
             <p className="text-2xl mb-2">🌱</p>
-            <p>还没有任务哦，添加一个吧~</p>
+            <p>{t('task.emptyState')}</p>
           </motion.div>
         )}
       </div>
@@ -157,7 +159,7 @@ export default function TaskList() {
       <Modal
         isOpen={showForm}
         onClose={() => { setShowForm(false); setEditingTask(undefined); }}
-        title={editingTask ? '编辑任务' : '添加任务'}
+        title={editingTask ? t('task.editTask') : t('task.addTask')}
       >
         <TaskForm
           task={editingTask}

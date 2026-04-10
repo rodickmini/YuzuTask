@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tag from '../ui/Tag';
 import { expandCollapse } from '../ui/animations';
+import { useTranslation } from '../../i18n';
 
 interface TaskFilterProps {
   tags: string[];
@@ -12,14 +13,15 @@ interface TaskFilterProps {
 }
 
 const statusOptions = [
-  { value: 'all' as const, label: '全部' },
-  { value: 'todo' as const, label: '待办' },
-  { value: 'in_progress' as const, label: '进行中' },
-  { value: 'done' as const, label: '已完成' },
+  { value: 'all' as const, labelKey: 'task.filter.all' },
+  { value: 'todo' as const, labelKey: 'task.filter.todo' },
+  { value: 'in_progress' as const, labelKey: 'task.filter.inProgress' },
+  { value: 'done' as const, labelKey: 'task.filter.done' },
 ];
 
 export default function TaskFilter({ tags, selectedTags, onTagToggle, statusFilter, onStatusChange }: TaskFilterProps) {
   const [expanded, setExpanded] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-2">
@@ -36,7 +38,7 @@ export default function TaskFilter({ tags, selectedTags, onTagToggle, statusFilt
                 : 'bg-warm-dark text-text-sub hover:text-text-main'
             }`}
           >
-            {opt.label}
+            {t(opt.labelKey)}
           </motion.button>
         ))}
       </div>
@@ -48,7 +50,7 @@ export default function TaskFilter({ tags, selectedTags, onTagToggle, statusFilt
             onClick={() => setExpanded(!expanded)}
             className="text-xs text-text-sub hover:text-primary transition-colors mb-1"
           >
-            {expanded ? '收起标签 ▲' : '按标签筛选 ▼'}
+            {expanded ? t('task.filter.collapseTags') : t('task.filter.expandTags')}
           </button>
           {expanded && (
             <motion.div

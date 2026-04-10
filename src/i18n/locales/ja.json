@@ -36,6 +36,7 @@
     "addTask": "タスク追加",
     "inProgress": "進行中",
     "todo": "未着手",
+    "tags": "タグ：",
     "filter": {
       "all": "すべて",
       "todo": "未着手",

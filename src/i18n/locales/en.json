@@ -36,6 +36,7 @@
     "addTask": "Add Task",
     "inProgress": "In progress",
     "todo": "To do",
+    "tags": "Tags:",
     "filter": {
       "all": "All",
       "todo": "To do",

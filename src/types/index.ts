@@ -80,7 +80,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
 {{blockers}}`,
     dateRange: 'mon-sun',
   },
-  customTags: ['工作', '开发', '会议', '文档', '沟通', '学习', '生活'],
+  customTags: ['tag.work', 'tag.dev', 'tag.meeting', 'tag.doc', 'tag.comm', 'tag.learn', 'tag.life'],
 };
 
 export const PRIORITY_CONFIG = {

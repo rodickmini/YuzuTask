@@ -9,6 +9,11 @@ Started: Fri Apr 10 20:28:09 CST 2026
 - date-fns used for date formatting with locale support (zhCN, enUS, ja)
 - `initReactI18next` plugin auto-binds i18n to React — no I18nextProvider wrapper needed when using default instance
 - `noUnusedLocals` and `noUnusedParameters` are enabled in tsconfig — be careful not to import unused things
+- Background service worker (src/background/index.ts) cannot import React — use `i18next` directly with inline locale imports, NOT `../i18n` (which pulls in react-i18next)
+- Non-React utility files (date.ts, report.ts) can import `i18n` from `../i18n` since they run in the React context
+- Template i18n uses `{{t:key.path}}` syntax to distinguish from data placeholders `{{key}}` in weekly report template
+- `getDateFnsLocale()` exported from date.ts — reuse in report.ts for locale-aware date formatting
+- `PRIORITY_CONFIG.label` is an i18n key string (e.g. 'task.priorityHigh'), not a translated string — components must call `t()` on it
 
 ## [2026-04-10] - US-001
 - Installed i18next and react-i18next
@@ -23,4 +28,51 @@ Started: Fri Apr 10 20:28:09 CST 2026
   - Japanese encouragement messages use natural Japanese phrasing, not just translations
   - The `encouragements` array is a top-level key since it's used as an array in components
   - `useTranslation` is re-exported from `src/i18n/index.ts` so components can import from a single module
+---
+
+## [2026-04-10] - US-002
+- Removed ENCOURAGEMENTS array from types/index.ts (already in locale files)
+- Changed PRIORITY_CONFIG labels to i18n key strings ('task.priorityHigh', 'task.priorityMedium', 'task.priorityLow')
+- Changed DEFAULT_SETTINGS.weeklyReport.template to use `{{t:key}}` i18n placeholders
+- Updated src/utils/date.ts: all functions (formatDate, formatRelativeDate, getGreeting, formatDuration) now use i18n.t() for strings and dynamic date-fns locale
+- Updated src/utils/report.ts: all Chinese template strings replaced with i18n.t() calls, locale-aware date formatting
+- Updated src/background/index.ts: standalone i18n setup (no React), notification strings use i18n.t()
+- Updated PomodoroTimer.tsx: switched from ENCOURAGEMENTS constant to locale-based encouragements via useTranslation
+- Added report.dayTotal key to all 3 locale files for "(共 Xh)" pattern
+- Exported getDateFnsLocale() from date.ts for reuse in report.ts
+- storage.ts had no Chinese strings — no changes needed
+- Files changed: src/types/index.ts, src/utils/date.ts, src/utils/report.ts, src/background/index.ts, src/components/pomodoro/PomodoroTimer.tsx, src/i18n/locales/zh.json, en.json, ja.json
+- **Learnings for future iterations:**
+  - Background service worker must NOT import from `../i18n` — it pulls in react-i18next/React. Use bare `i18next` with inline locale JSON imports
+  - The `{{t:key.path}}` convention distinguishes i18n placeholders from data placeholders in the weekly report template
+  - PRIORITY_CONFIG.label is now an i18n key — any future component using .label must call t() on it
+  - t('encouragements', { returnObjects: true }) returns the full array from locale files
+---
+
+## [2026-04-10] - US-003
+- Header.tsx: added useTranslation() hook to subscribe to language changes (greeting text already i18n'd via getGreeting() in US-002)
+- BottomBar.tsx: replaced hardcoded Chinese nav labels with i18n keys (nav.home, nav.worklog, nav.weekly, nav.settings), added useTranslation hook
+- NewTab.tsx: no text strings to internationalize (only a loading spinner with no text) — no changes needed
+- Files changed: src/components/layout/Header.tsx, src/components/layout/BottomBar.tsx
+- **Learnings for future iterations:**
+  - Calling useTranslation() without destructuring is valid and won't trigger noUnusedLocals — it subscribes the component to language changes as a side effect
+  - NewTab.tsx has no user-facing text, only a loading spinner — no i18n needed there
+  - navItems array pattern: change `label: string` to `labelKey: string` and call `t(labelKey)` in render for i18n
+---
+
+## [2026-04-10] - US-004
+- Internationalized all task component hardcoded Chinese strings
+- TaskList.tsx: replaced "今日待办", "添加", "已完成", empty state, modal titles, toast messages with i18n keys
+- TaskForm.tsx: replaced placeholders ("任务名称...", "描述（可选）"), priority label, priority button text (using PRIORITY_CONFIG[p].label + t()), duration/date labels, cancel/save/add buttons
+- TaskFilter.tsx: replaced status option labels with i18n keys (changed `label` to `labelKey` pattern), tag expand/collapse text
+- Tag.tsx: added useTranslation, changed TAG_COLORS keys from Chinese strings to i18n keys (e.g. '工作' → 'tag.work'), added displayLabel resolution for i18n tag keys
+- TagSelector.tsx: added useTranslation, replaced "标签：" with i18n key
+- types/index.ts: changed DEFAULT_SETTINGS.customTags from Chinese strings to i18n keys (['tag.work', 'tag.dev', ...])
+- Added `task.tags` locale key to all 3 locale files for TagSelector label
+- Files changed: src/components/task/TaskList.tsx, TaskForm.tsx, TaskFilter.tsx, src/components/ui/Tag.tsx, TagSelector.tsx, src/types/index.ts, src/i18n/locales/zh.json, en.json, ja.json
+- **Learnings for future iterations:**
+  - Default tags are now stored as i18n keys ('tag.work', 'tag.dev', etc.) — Tag component resolves them via `t(label, label)` with fallback to raw label for user-created tags
+  - TAG_COLORS uses i18n keys as map keys now, NOT display text — color lookup still uses the raw key
+  - `t(label, label)` second arg is defaultValue — if i18n key has no match, displays the key itself (useful for user-created tags that don't start with 'tag.')
+  - TaskItem.tsx had no hardcoded text — formatDuration and formatRelativeDate are already i18n'd from US-002
 ---

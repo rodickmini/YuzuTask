@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Task } from '../../types';
+import { PRIORITY_CONFIG } from '../../types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import TagSelector from '../ui/TagSelector';
 import { fadeInUp } from '../ui/animations';
 import { useTagSelection } from '../../hooks/useTagSelection';
 import { generateId } from '../../utils/storage';
+import { useTranslation } from '../../i18n';
 
 interface TaskFormProps {
   task?: Task;
@@ -16,6 +18,7 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
   const [priority, setPriority] = useState<Task['priority']>(task?.priority || 'medium');
@@ -53,14 +56,14 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
       className="space-y-4"
     >
       <Input
-        placeholder="任务名称..."
+        placeholder={t('task.titlePlaceholder')}
         value={title}
         onChange={e => setTitle(e.target.value)}
         autoFocus
       />
 
       <textarea
-        placeholder="描述（可选）"
+        placeholder={t('task.descriptionPlaceholder')}
         value={description}
         onChange={e => setDescription(e.target.value)}
         className="w-full px-3 py-2 bg-white border border-warm-dark rounded-xl text-sm text-text-main placeholder:text-text-sub/50 outline-none transition-all focus:border-primary focus:shadow-soft resize-none h-16"
@@ -68,7 +71,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
 
       {/* Priority */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-text-sub">优先级：</span>
+        <span className="text-xs text-text-sub">{t('task.priority')}</span>
         {(['low', 'medium', 'high'] as const).map(p => (
           <motion.button
             key={p}
@@ -83,7 +86,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
                 : 'bg-warm-dark text-text-sub'
             }`}
           >
-            {p === 'high' ? '高' : p === 'medium' ? '中' : '低'}
+            {t(PRIORITY_CONFIG[p].label)}
           </motion.button>
         ))}
       </div>
@@ -95,7 +98,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
       <div className="flex gap-3">
         <div className="flex-1">
           <Input
-            label="预计时长(分钟)"
+            label={t('task.estimatedDuration')}
             type="number"
             placeholder="30"
             value={estimatedMinutes}
@@ -104,7 +107,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
         </div>
         <div className="flex-1">
           <Input
-            label="截止日期"
+            label={t('task.dueDate')}
             type="date"
             value={dueDate}
             onChange={e => setDueDate(e.target.value)}
@@ -114,8 +117,8 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
 
       {/* Actions */}
       <div className="flex justify-end gap-2 pt-2">
-        <Button variant="ghost" type="button" onClick={onCancel}>取消</Button>
-        <Button type="submit">{task ? '保存' : '添加'}</Button>
+        <Button variant="ghost" type="button" onClick={onCancel}>{t('task.cancel')}</Button>
+        <Button type="submit">{task ? t('task.save') : t('task.add')}</Button>
       </div>
     </motion.form>
   );

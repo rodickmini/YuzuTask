@@ -35,7 +35,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Background service worker cannot use React hooks. For background.ts, import i18next directly and call t() from the i18n instance. Initialize i18n in background.ts separately with the same config."
     },
     {
@@ -50,7 +50,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Keep the greeting emoji and time formatting logic in the component, only externalize the text strings."
     },
     {
@@ -66,7 +66,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Default tags like #工作 #开发 should also be in locale files so they display in the user's language."
     },
     {

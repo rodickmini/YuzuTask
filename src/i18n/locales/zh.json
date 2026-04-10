@@ -36,6 +36,7 @@
     "addTask": "添加任务",
     "inProgress": "进行中",
     "todo": "待办",
+    "tags": "标签：",
     "filter": {
       "all": "全部",
       "todo": "待办",
