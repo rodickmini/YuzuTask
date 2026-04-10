@@ -5,6 +5,8 @@
 - Background service worker entry is configured as a separate Rollup input with custom `entryFileNames` to output as `background.js` at dist root
 - `npm run build` runs `tsc && vite build` — typecheck first, then build
 - All chrome.storage.local access should go through `src/utils/storage.ts` — never call chrome.storage directly from UI components
+- Shared Framer Motion animation variants live in `src/components/ui/animations.ts` — use named states (initial/animate/exit) with the `variants` prop
+- Tag selection logic should use `src/hooks/useTagSelection.ts` hook; tag selection UI should use `src/components/ui/TagSelector.tsx`
 
 # Ralph Progress Log
 Started: Fri Apr 10 15:29:46 CST 2026
@@ -58,4 +60,18 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - `useMemo` on the context value is a simple win for reducing unnecessary consumer re-renders
   - Exporting the `Action` type allows components to import it for dispatch typing if needed
 ---
+
+## Thu Apr 10 17:30 - US-005
+- Extracted `useTagSelection` hook (`src/hooks/useTagSelection.ts`) to eliminate duplicated tag toggle logic between TaskForm and WorkLogForm
+- Extracted `TagSelector` component (`src/components/ui/TagSelector.tsx`) for shared tag selection UI
+- Created shared Framer Motion animation variants (`src/components/ui/animations.ts`): `cardIn`, `slideOutLeft`, `expandCollapse`, `fadeIn`
+- Updated TaskForm, WorkLogForm to use `useTagSelection` + `TagSelector` + `cardIn` animation
+- Updated TaskItem, WorkLogList, TaskFilter, TaskList to use shared animation variants
+- All components already used consistent `interface` prop typing — no changes needed there
+- Files changed: `src/hooks/useTagSelection.ts` (new), `src/components/ui/TagSelector.tsx` (new), `src/components/ui/animations.ts` (new), `src/components/task/TaskForm.tsx`, `src/components/task/TaskItem.tsx`, `src/components/task/TaskFilter.tsx`, `src/components/task/TaskList.tsx`, `src/components/worklog/WorkLogForm.tsx`, `src/components/worklog/WorkLogList.tsx`
+- **Learnings for future iterations:**
+  - Shared animation variants should use Framer Motion `Variants` type with named states (`initial`, `animate`, `exit`) for use with the `variants` prop
+  - When merging multiple variant objects spread them: `variants={{ ...cardIn, ...slideOutLeft }}` — this works because each defines different state keys
+  - The `src/hooks/` directory didn't exist yet — created it as the home for custom hooks
+  - Tag toggle logic is identical across forms — the `useTagSelection` hook with `initial` parameter handles both empty and pre-populated cases
 ---

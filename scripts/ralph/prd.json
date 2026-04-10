@@ -78,7 +78,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Focus on UI components in src/components/ui/ and form components."
     },
     {
