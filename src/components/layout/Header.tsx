@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../../i18n';
 import { getGreeting, formatTime } from '../../utils/date';
 
 export default function Header() {
+  useTranslation();
   const [time, setTime] = useState(new Date());
   const [greeting, setGreeting] = useState(getGreeting());
 

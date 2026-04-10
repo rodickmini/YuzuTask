@@ -1,17 +1,19 @@
 import { motion } from 'framer-motion';
 import { Settings, FileText, BookOpen, Home } from 'lucide-react';
 import { useAppState } from '../../store';
+import { useTranslation } from '../../i18n';
 import type { AppView } from '../../types';
 
-const navItems: { view: AppView; icon: typeof Home; label: string }[] = [
-  { view: 'home', icon: Home, label: '首页' },
-  { view: 'worklog', icon: BookOpen, label: '记录' },
-  { view: 'weekly', icon: FileText, label: '周报' },
-  { view: 'settings', icon: Settings, label: '设置' },
+const navItems: { view: AppView; icon: typeof Home; labelKey: string }[] = [
+  { view: 'home', icon: Home, labelKey: 'nav.home' },
+  { view: 'worklog', icon: BookOpen, labelKey: 'nav.worklog' },
+  { view: 'weekly', icon: FileText, labelKey: 'nav.weekly' },
+  { view: 'settings', icon: Settings, labelKey: 'nav.settings' },
 ];
 
 export default function BottomBar() {
   const { state, dispatch } = useAppState();
+  const { t } = useTranslation();
 
   return (
     <motion.footer
@@ -20,7 +22,7 @@ export default function BottomBar() {
       transition={{ duration: 0.5, delay: 0.3 }}
       className="flex items-center justify-center gap-2 px-8 py-3"
     >
-      {navItems.map(({ view, icon: Icon, label }) => {
+      {navItems.map(({ view, icon: Icon, labelKey }) => {
         const isActive = state.currentView === view;
         return (
           <motion.button
@@ -35,7 +37,7 @@ export default function BottomBar() {
             }`}
           >
             <Icon size={16} />
-            <span>{label}</span>
+            <span>{t(labelKey)}</span>
           </motion.button>
         );
       })}
