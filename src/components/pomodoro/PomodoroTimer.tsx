@@ -64,7 +64,7 @@ export default function PomodoroTimer() {
       if (task) {
         const log: WorkLog = {
           id: storage.generateId(),
-          content: `专注完成：${task.title}`,
+          content: `${t('pomodoro.focusComplete')}${task.title}`,
           tags: task.tags,
           durationMinutes: settings.pomodoroFocusMinutes,
           date: toISODateString(new Date()),
@@ -88,7 +88,7 @@ export default function PomodoroTimer() {
     setIsBreak(true);
     setTotalSeconds(breakMinutes * 60);
     setRemainingSeconds(breakMinutes * 60);
-    showToast('专注结束！休息一下吧~ ☕');
+    showToast(t('pomodoro.focusDone'));
   }, [selectedTaskId, settings, state.tasks, state.workLogs, completedCount, dispatch, stopTimer]);
 
   const completeBreak = useCallback(() => {
@@ -98,7 +98,7 @@ export default function PomodoroTimer() {
     setIsPaused(false);
     setTotalSeconds(settings.pomodoroFocusMinutes * 60);
     setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
-    showToast('休息结束，继续加油~ 💪');
+    showToast(t('pomodoro.breakDone'));
   }, [settings.pomodoroFocusMinutes, stopTimer]);
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function PomodoroTimer() {
     <div className="flex flex-col items-center">
       <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5 mb-4">
         <span className="text-base">🍅</span>
-        {isBreak ? '休息一下' : '番茄钟'}
+        {isBreak ? t('pomodoro.breakTitle') : t('pomodoro.title')}
       </h3>
 
       {/* Task selector */}
@@ -162,7 +162,7 @@ export default function PomodoroTimer() {
           onChange={e => setSelectedTaskId(e.target.value || undefined)}
           className="w-full px-3 py-2 mb-4 bg-white border border-warm-dark rounded-xl text-xs text-text-main outline-none focus:border-primary"
         >
-          <option value="">选择关联任务（可选）</option>
+          <option value="">{t('pomodoro.selectTask')}</option>
           {activeTasks.map(t => (
             <option key={t.id} value={t.id}>{t.title}</option>
           ))}
@@ -224,7 +224,7 @@ export default function PomodoroTimer() {
           <span className="text-xs text-text-sub">+{completedCount - 8}</span>
         )}
         {completedCount === 0 && (
-          <span className="text-xs text-text-sub">开始你的第一个番茄吧~</span>
+          <span className="text-xs text-text-sub">{t('pomodoro.emptyState')}</span>
         )}
       </div>
 
@@ -238,7 +238,7 @@ export default function PomodoroTimer() {
             className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-2xl text-sm font-medium shadow-soft hover:bg-primary-dark transition-colors"
           >
             <Play size={16} />
-            {isBreak ? '开始休息' : '开始专注'}
+            {isBreak ? t('pomodoro.startBreak') : t('pomodoro.startFocus')}
           </motion.button>
         ) : (
           <>
@@ -249,7 +249,7 @@ export default function PomodoroTimer() {
               className="flex items-center gap-1.5 px-4 py-2 bg-cream text-amber-700 rounded-2xl text-sm font-medium shadow-soft"
             >
               {isPaused ? <Play size={16} /> : <Pause size={16} />}
-              {isPaused ? '继续' : '暂停'}
+              {isPaused ? t('pomodoro.resume') : t('pomodoro.pause')}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
