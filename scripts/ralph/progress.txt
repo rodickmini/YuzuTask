@@ -130,3 +130,19 @@ Started: Fri Apr 10 20:28:09 CST 2026
   - Modal.tsx has no user-facing text — the close button is only an X icon, not text
   - SettingsPage tag list renders raw spans (not Tag component) — needed inline i18n resolution rather than using Tag component
 ---
+
+## [2026-04-10] - US-009
+- Added language switcher UI at the top of SettingsPage with three buttons: 简体中文, English, 日本語
+- Exported `changeLanguage()` from src/i18n/index.ts that calls `i18n.changeLanguage()` and persists to `chrome.storage.local` under key `yuzutask_language`
+- On init, `loadSavedLanguage()` checks `chrome.storage.local` for saved preference first, falls back to `navigator.language` detection
+- Language change takes effect immediately via i18next React binding (no page reload needed)
+- date-fns locale switches accordingly because `getDateFnsLocale()` reads `i18n.language` dynamically
+- Added `settings.languageSection` and `settings.language` locale keys to all 3 locale files
+- Manual browser verification needed (no browser testing tools available)
+- Files changed: src/i18n/index.ts, src/components/settings/SettingsPage.tsx, src/i18n/locales/zh.json, en.json, ja.json
+- **Learnings for future iterations:**
+  - i18next `changeLanguage()` triggers React re-renders automatically when using `useTranslation()` hook — no manual forceUpdate needed
+  - `getDateFnsLocale()` in date.ts already reads `i18n.language` dynamically, so date-fns locale switches automatically when language changes
+  - The `i18n` instance from `useTranslation()` can be used to read `i18n.language` for comparing current language
+  - Background service worker still uses its own standalone i18n setup and won't pick up the language preference — this is acceptable since the background only sends notifications
+---

@@ -143,7 +143,7 @@
         "Verify in browser"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Store the language preference as 'yuzutask_language' in chrome.storage.local. On init, check this key first, then fall back to navigator.language."
     }
   ]
