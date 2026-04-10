@@ -1,4 +1,4 @@
-// Background Service Worker for TaskTab
+// Background Service Worker for YuzuTask
 // Handles alarms and notifications
 
 // --- Notification click handler ---
@@ -9,8 +9,8 @@ chrome.notifications.onClicked.addListener((_notificationId) => {
 
 // --- Set up weekly report alarm on install ---
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get('tasktab_settings', (result) => {
-    const settings = result.tasktab_settings;
+  chrome.storage.local.get('yuzutask_settings', (result) => {
+    const settings = result.yuzutask_settings;
     if (!settings?.weeklyReport?.enabled) return;
 
     const config = settings.weeklyReport;
@@ -29,7 +29,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     chrome.notifications.create('weekly-report-reminder', {
       type: 'basic',
       iconUrl: 'icons/icon-128.png',
-      title: 'TaskTab 周报提醒',
+      title: 'YuzuTask 周报提醒',
       message: '该写周报啦~ 点击新标签页生成本周周报吧！',
       priority: 2,
     });

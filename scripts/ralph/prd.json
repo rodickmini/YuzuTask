@@ -1,5 +1,5 @@
 {
-  "project": "TaskTab",
+  "project": "YuzuTask",
   "branchName": "ralph/fix-and-optimize",
   "description": "Fix Chrome extension loading failure and optimize/refactor the codebase",
   "userStories": [
@@ -26,7 +26,7 @@
       "description": "As a user, I need the extension to load without errors when added to Chrome via chrome://extensions.",
       "acceptanceCriteria": [
         "Extension loads in chrome://extensions without errors",
-        "Opening a new tab shows the TaskTab UI",
+        "Opening a new tab shows the YuzuTask UI",
         "chrome.storage.local works (no undefined errors)",
         "Background service worker registers without errors",
         "DevTools console shows no critical errors",

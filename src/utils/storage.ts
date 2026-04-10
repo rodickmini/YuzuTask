@@ -2,11 +2,11 @@ import type { Task, WorkLog, PomodoroSession, UserSettings } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 
 const KEYS = {
-  TASKS: 'tasktab_tasks',
-  WORKLOGS: 'tasktab_worklogs',
-  POMODORO_SESSIONS: 'tasktab_pomodoro_sessions',
-  SETTINGS: 'tasktab_settings',
-  POMODORO_STATE: 'tasktab_pomodoro_state',
+  TASKS: 'yuzutask_tasks',
+  WORKLOGS: 'yuzutask_worklogs',
+  POMODORO_SESSIONS: 'yuzutask_pomodoro_sessions',
+  SETTINGS: 'yuzutask_settings',
+  POMODORO_STATE: 'yuzutask_pomodoro_state',
 } as const;
 
 function isChromeStorage(): boolean {
@@ -102,7 +102,7 @@ export async function savePomodoroState(state: PomodoroState | null): Promise<vo
   return set(KEYS.POMODORO_STATE, state);
 }
 
-// Clear all TaskTab data
+// Clear all YuzuTask data
 export async function clearAll(): Promise<void> {
   if (!isChromeStorage()) {
     throw new StorageError('*', 'clear', 'chrome.storage.local not available');
