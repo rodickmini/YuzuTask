@@ -4,9 +4,10 @@
     "save": "保存"
   },
   "nav": {
-    "home": "ホーム",
+    "home": "タスク",
     "worklog": "記録",
     "weekly": "週報",
+    "footprint": "活動履歴",
     "settings": "設定"
   },
   "greeting": {
@@ -170,6 +171,24 @@
     "comm": "コミュニケーション",
     "learn": "学習",
     "life": "生活"
+  },
+  "footprint": {
+    "title": "活動履歴",
+    "activeDays": "アクティブ日数",
+    "streak": "最長連続日数",
+    "totalTasks": "完了タスク",
+    "duration": "総時間",
+    "logs": "作業記録",
+    "completed": "完了",
+    "completedTasks": "完了タスク",
+    "workLogs": "作業記録",
+    "pomodoroSessions": "ポモドーロ",
+    "noData": "この日は活動記録なし",
+    "noActivity": "活動なし",
+    "activities": "件の活動",
+    "inTheYear": "過去1年間",
+    "less": "少",
+    "more": "多"
   },
   "notification": {
     "weeklyTitle": "YuzuTask 週報リマインダー",

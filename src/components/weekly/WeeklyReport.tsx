@@ -94,7 +94,7 @@ export default function WeeklyReport() {
       </div>
 
       {/* Week info */}
-      <div className="bg-white rounded-2xl p-4 shadow-card mb-4">
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 mb-4">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-text-main font-medium">
             {t('weekly.currentWeek')}{weekLabel}

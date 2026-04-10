@@ -31,6 +31,12 @@ export const fadeIn: Variants = {
   animate: { opacity: 1 },
 };
 
+/** Slide up animation */
+export const slideUp: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20, stiffness: 200 } },
+};
+
 /** Stagger container for page load - children fade in sequentially */
 export const staggerContainer: Variants = {
   initial: {},

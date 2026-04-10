@@ -2,6 +2,34 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n';
 import { getGreeting, formatTime } from '../../utils/date';
+import { usePomodoroContext } from '../../hooks/PomodoroContext';
+
+function PomodoroIndicator() {
+  const { isRunning, isPaused, isBreak, remainingSeconds } = usePomodoroContext();
+
+  if (!isRunning) return null;
+
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+        isPaused
+          ? 'bg-cream/60 text-amber-700'
+          : isBreak
+          ? 'bg-mint/40 text-emerald-700'
+          : 'bg-primary/15 text-primary-dark'
+      }`}
+    >
+      <span>{isBreak ? '☕' : isPaused ? '⏸' : '🍅'}</span>
+      <span className="tabular-nums">{timeStr}</span>
+    </motion.div>
+  );
+}
 
 export default function Header() {
   useTranslation();
@@ -34,12 +62,15 @@ export default function Header() {
         </motion.span>
         <span className="text-lg text-text-main font-medium">{greeting.text}</span>
       </div>
-      <motion.div
-        className="text-3xl font-light text-text-main tabular-nums tracking-wider"
-        key={formatTime(time)}
-      >
-        {formatTime(time)}
-      </motion.div>
+      <div className="flex items-center gap-3">
+        <PomodoroIndicator />
+        <motion.div
+          className="text-3xl font-light text-text-main tabular-nums tracking-wider"
+          key={formatTime(time)}
+        >
+          {formatTime(time)}
+        </motion.div>
+      </div>
     </motion.header>
   );
 }

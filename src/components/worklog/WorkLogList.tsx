@@ -152,7 +152,7 @@ export default function WorkLogList() {
                     initial="initial"
                     animate="animate"
                     exit="exit"
-                    className="group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card"
+                    className="group flex items-start gap-3 p-3 rounded-2xl border border-warm-dark/50"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-text-main">{log.content}</p>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Settings, FileText, BookOpen, Home } from 'lucide-react';
+import { Settings, FileText, BookOpen, Home, CalendarDays } from 'lucide-react';
 import { useAppState } from '../../store';
 import { useTranslation } from '../../i18n';
 import type { AppView } from '../../types';
@@ -8,6 +8,7 @@ const navItems: { view: AppView; icon: typeof Home; labelKey: string }[] = [
   { view: 'home', icon: Home, labelKey: 'nav.home' },
   { view: 'worklog', icon: BookOpen, labelKey: 'nav.worklog' },
   { view: 'weekly', icon: FileText, labelKey: 'nav.weekly' },
+  { view: 'footprint', icon: CalendarDays, labelKey: 'nav.footprint' },
   { view: 'settings', icon: Settings, labelKey: 'nav.settings' },
 ];
 

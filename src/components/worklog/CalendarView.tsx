@@ -40,7 +40,7 @@ export default function CalendarView({ workLogs, selectedDate, onSelectDate }: C
   const today = new Date();
 
   return (
-    <div className="bg-white rounded-2xl p-3 shadow-card">
+    <div className="bg-white rounded-2xl p-3 border border-warm-dark/50">
       {/* Navigation */}
       <div className="flex items-center justify-between mb-2">
         <button onClick={() => setWeekOffset(prev => prev - 1)} className="p-1 rounded-lg hover:bg-warm-dark">

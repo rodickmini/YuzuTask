@@ -4,9 +4,10 @@
     "save": "Save"
   },
   "nav": {
-    "home": "Home",
+    "home": "Todos",
     "worklog": "Records",
     "weekly": "Report",
+    "footprint": "Footprint",
     "settings": "Settings"
   },
   "greeting": {
@@ -170,6 +171,24 @@
     "comm": "Communication",
     "learn": "Learning",
     "life": "Life"
+  },
+  "footprint": {
+    "title": "Activity Footprint",
+    "activeDays": "Active Days",
+    "streak": "Longest Streak",
+    "totalTasks": "Tasks Done",
+    "duration": "Duration",
+    "logs": "Work Logs",
+    "completed": "Completed",
+    "completedTasks": "Completed Tasks",
+    "workLogs": "Work Logs",
+    "pomodoroSessions": "Pomodoro Sessions",
+    "noData": "No activity on this day",
+    "noActivity": "No activity",
+    "activities": "activities",
+    "inTheYear": "in the last year",
+    "less": "Less",
+    "more": "More"
   },
   "notification": {
     "weeklyTitle": "YuzuTask Report Reminder",

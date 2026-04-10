@@ -53,7 +53,7 @@ export interface UserSettings {
   customTags: string[];
 }
 
-export type AppView = 'home' | 'worklog' | 'weekly' | 'settings';
+export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings';
 
 export const DEFAULT_SETTINGS: UserSettings = {
   pomodoroFocusMinutes: 25,

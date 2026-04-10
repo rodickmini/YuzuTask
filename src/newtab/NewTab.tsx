@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { AppProvider, useAppState } from '../store';
+import { PomodoroProvider } from '../hooks/PomodoroContext';
 import Header from '../components/layout/Header';
 import BottomBar from '../components/layout/BottomBar';
 import TaskList from '../components/task/TaskList';
 import PomodoroTimer from '../components/pomodoro/PomodoroTimer';
 import WorkLogList from '../components/worklog/WorkLogList';
 import WeeklyReport from '../components/weekly/WeeklyReport';
+import FootprintPage from '../components/footprint/FootprintPage';
 import SettingsPage from '../components/settings/SettingsPage';
 import Toast from '../components/ui/Toast';
 import { staggerContainer, staggerItem } from '../components/ui/animations';
@@ -45,7 +47,7 @@ function MainContent() {
             {/* Left: Pomodoro */}
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-3xl shadow-card p-5 h-fit"
+              className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-fit"
             >
               <PomodoroTimer />
             </motion.div>
@@ -53,7 +55,7 @@ function MainContent() {
             {/* Right: Tasks */}
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
+              className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
             >
               <TaskList />
             </motion.div>
@@ -65,7 +67,7 @@ function MainContent() {
             variants={staggerItem}
             initial="initial"
             animate="animate"
-            className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
+            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
           >
             <WorkLogList />
           </motion.div>
@@ -76,9 +78,20 @@ function MainContent() {
             variants={staggerItem}
             initial="initial"
             animate="animate"
-            className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
+            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
           >
             <WeeklyReport />
+          </motion.div>
+        )}
+
+        {state.currentView === 'footprint' && (
+          <motion.div
+            variants={staggerItem}
+            initial="initial"
+            animate="animate"
+            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
+          >
+            <FootprintPage />
           </motion.div>
         )}
 
@@ -102,8 +115,10 @@ function MainContent() {
 export default function NewTab() {
   return (
     <AppProvider>
-      <MainContent />
-      <Toast />
+      <PomodoroProvider>
+        <MainContent />
+        <Toast />
+      </PomodoroProvider>
     </AppProvider>
   );
 }

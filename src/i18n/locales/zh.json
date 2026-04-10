@@ -4,9 +4,10 @@
     "save": "保存"
   },
   "nav": {
-    "home": "首页",
+    "home": "待办",
     "worklog": "记录",
     "weekly": "周报",
+    "footprint": "足迹",
     "settings": "设置"
   },
   "greeting": {
@@ -170,6 +171,24 @@
     "comm": "沟通",
     "learn": "学习",
     "life": "生活"
+  },
+  "footprint": {
+    "title": "活动足迹",
+    "activeDays": "活跃天数",
+    "streak": "最长连续天数",
+    "totalTasks": "完成任务",
+    "duration": "总时长",
+    "logs": "工作记录",
+    "completed": "已完成",
+    "completedTasks": "完成任务",
+    "workLogs": "工作记录",
+    "pomodoroSessions": "番茄钟",
+    "noData": "这天还没有活动记录",
+    "noActivity": "无活动",
+    "activities": "项活动",
+    "inTheYear": "在过去一年",
+    "less": "少",
+    "more": "多"
   },
   "notification": {
     "weeklyTitle": "YuzuTask 周报提醒",

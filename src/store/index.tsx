@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, type ReactNode } from 'react';
-import type { Task, WorkLog, UserSettings, AppView } from '../types';
+import type { Task, WorkLog, PomodoroSession, UserSettings, AppView } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import * as storage from '../utils/storage';
 
 interface AppState {
   tasks: Task[];
   workLogs: WorkLog[];
+  pomodoroSessions: PomodoroSession[];
   settings: UserSettings;
   currentView: AppView;
   isLoading: boolean;
@@ -20,6 +21,7 @@ export type Action =
   | { type: 'SET_WORKLOGS'; payload: WorkLog[] }
   | { type: 'ADD_WORKLOG'; payload: WorkLog }
   | { type: 'DELETE_WORKLOG'; payload: string }
+  | { type: 'SET_POMODORO_SESSIONS'; payload: PomodoroSession[] }
   | { type: 'SET_SETTINGS'; payload: UserSettings }
   | { type: 'SET_VIEW'; payload: AppView }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -41,6 +43,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, workLogs: [...state.workLogs, action.payload] };
     case 'DELETE_WORKLOG':
       return { ...state, workLogs: state.workLogs.filter(l => l.id !== action.payload) };
+    case 'SET_POMODORO_SESSIONS':
+      return { ...state, pomodoroSessions: action.payload };
     case 'SET_SETTINGS':
       return { ...state, settings: action.payload };
     case 'SET_VIEW':
@@ -57,6 +61,7 @@ function reducer(state: AppState, action: Action): AppState {
 const initialState: AppState = {
   tasks: [],
   workLogs: [],
+  pomodoroSessions: [],
   settings: DEFAULT_SETTINGS,
   currentView: 'home',
   isLoading: true,
@@ -68,6 +73,7 @@ interface AppContextType {
   dispatch: React.Dispatch<Action>;
   refreshTasks: () => Promise<void>;
   refreshWorkLogs: () => Promise<void>;
+  refreshPomodoroSessions: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -93,17 +99,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const refreshPomodoroSessions = useCallback(async () => {
+    try {
+      const sessions = await storage.getPomodoroSessions();
+      dispatch({ type: 'SET_POMODORO_SESSIONS', payload: sessions });
+    } catch (err) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh pomodoro sessions' });
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
-        const [tasks, workLogs, settings] = await Promise.all([
+        const [tasks, workLogs, settings, pomodoroSessions] = await Promise.all([
           storage.getTasks(),
           storage.getWorkLogs(),
           storage.getSettings(),
+          storage.getPomodoroSessions(),
         ]);
         dispatch({ type: 'SET_TASKS', payload: tasks });
         dispatch({ type: 'SET_WORKLOGS', payload: workLogs });
         dispatch({ type: 'SET_SETTINGS', payload: settings });
+        dispatch({ type: 'SET_POMODORO_SESSIONS', payload: pomodoroSessions });
       } catch (err) {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
       } finally {
@@ -113,8 +130,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const contextValue = useMemo<AppContextType>(
-    () => ({ state, dispatch, refreshTasks, refreshWorkLogs }),
-    [state, dispatch, refreshTasks, refreshWorkLogs],
+    () => ({ state, dispatch, refreshTasks, refreshWorkLogs, refreshPomodoroSessions }),
+    [state, dispatch, refreshTasks, refreshWorkLogs, refreshPomodoroSessions],
   );
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAppState } from '../../store';
 import { useTranslation, changeLanguage } from '../../i18n';
@@ -23,11 +23,7 @@ export default function SettingsPage() {
   const [newTag, setNewTag] = useState('');
   const [tags, setTags] = useState(state.settings.customTags);
 
-  const handleLanguageChange = async (lang: string) => {
-    await changeLanguage(lang);
-  };
-
-  const handleSave = async () => {
+  const saveSettings = useCallback(async (partial: Record<string, unknown>) => {
     const settings = {
       ...state.settings,
       pomodoroFocusMinutes: parseInt(focusMinutes) || 25,
@@ -35,22 +31,41 @@ export default function SettingsPage() {
       longBreakMinutes: parseInt(longBreakMinutes) || 15,
       longBreakInterval: parseInt(longBreakInterval) || 4,
       customTags: tags,
+      ...partial,
     };
     dispatch({ type: 'SET_SETTINGS', payload: settings });
     await storage.saveSettings(settings);
     showToast(t('settings.saved'));
+  }, [state.settings, focusMinutes, breakMinutes, longBreakMinutes, longBreakInterval, tags, dispatch, t]);
+
+  const handleLanguageChange = async (lang: string) => {
+    await changeLanguage(lang);
+  };
+
+  const updatePomodoro = (field: string, value: string, min: number, max: number) => {
+    const num = Math.min(max, Math.max(min, parseInt(value) || min));
+    // Update local display to show clamped value
+    if (field === 'pomodoroFocusMinutes') setFocusMinutes(num.toString());
+    if (field === 'pomodoroBreakMinutes') setBreakMinutes(num.toString());
+    if (field === 'longBreakMinutes') setLongBreakMinutes(num.toString());
+    if (field === 'longBreakInterval') setLongBreakInterval(num.toString());
+    saveSettings({ [field]: num });
   };
 
   const addTag = () => {
     const trimmed = newTag.trim();
     if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed]);
+      const next = [...tags, trimmed];
+      setTags(next);
       setNewTag('');
+      saveSettings({ customTags: next });
     }
   };
 
   const removeTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
+    const next = tags.filter(t => t !== tag);
+    setTags(next);
+    saveSettings({ customTags: next });
   };
 
   return (
@@ -64,7 +79,7 @@ export default function SettingsPage() {
       </h3>
 
       {/* Language selector */}
-      <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
         <h4 className="text-sm font-medium text-text-main">{t('settings.languageSection')}</h4>
         <div className="flex gap-2">
           {LANGUAGES.map(lang => (
@@ -84,7 +99,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Pomodoro settings */}
-      <div className="bg-white rounded-2xl p-4 shadow-card space-y-4">
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-4">
         <h4 className="text-sm font-medium text-text-main">{t('settings.pomodoroSection')}</h4>
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -92,30 +107,34 @@ export default function SettingsPage() {
             type="number"
             value={focusMinutes}
             onChange={e => setFocusMinutes(e.target.value)}
+            onBlur={() => updatePomodoro('pomodoroFocusMinutes', focusMinutes, 1, 120)}
           />
           <Input
             label={t('settings.breakDuration')}
             type="number"
             value={breakMinutes}
             onChange={e => setBreakMinutes(e.target.value)}
+            onBlur={() => updatePomodoro('pomodoroBreakMinutes', breakMinutes, 1, 60)}
           />
           <Input
             label={t('settings.longBreakDuration')}
             type="number"
             value={longBreakMinutes}
             onChange={e => setLongBreakMinutes(e.target.value)}
+            onBlur={() => updatePomodoro('longBreakMinutes', longBreakMinutes, 1, 60)}
           />
           <Input
             label={t('settings.longBreakInterval')}
             type="number"
             value={longBreakInterval}
             onChange={e => setLongBreakInterval(e.target.value)}
+            onBlur={() => updatePomodoro('longBreakInterval', longBreakInterval, 1, 10)}
           />
         </div>
       </div>
 
       {/* Tags */}
-      <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
         <h4 className="text-sm font-medium text-text-main">{t('settings.tagsSection')}</h4>
         <div className="flex flex-wrap gap-2">
           {tags.map(tag => (
@@ -142,7 +161,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Data management */}
-      <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
         <h4 className="text-sm font-medium text-text-main">{t('settings.dataSection')}</h4>
         <p className="text-xs text-text-sub">{t('settings.dataNotice')}</p>
         <Button
@@ -157,10 +176,6 @@ export default function SettingsPage() {
         >
           {t('settings.clearData')}
         </Button>
-      </div>
-
-      <div className="flex justify-end">
-        <Button onClick={handleSave}>{t('settings.saveSettings')}</Button>
       </div>
     </motion.div>
   );

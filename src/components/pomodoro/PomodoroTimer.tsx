@@ -1,149 +1,34 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, ChevronDown } from 'lucide-react';
 import { useAppState } from '../../store';
-import type { PomodoroSession, WorkLog } from '../../types';
+import { usePomodoroContext } from '../../hooks/PomodoroContext';
 import { useTranslation } from '../../i18n';
-import * as storage from '../../utils/storage';
-import { showToast } from '../ui/Toast';
-import { toISODateString } from '../../utils/date';
 
 export default function PomodoroTimer() {
-  const { state, dispatch } = useAppState();
+  const { state } = useAppState();
   const { t } = useTranslation();
-  const { settings } = state;
-
-  const [isRunning, setIsRunning] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(settings.pomodoroFocusMinutes * 60);
-  const [totalSeconds, setTotalSeconds] = useState(settings.pomodoroFocusMinutes * 60);
-  const [completedCount, setCompletedCount] = useState(0);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>();
-  const [encouragement, setEncouragement] = useState('');
-
-  const intervalRef = useRef<number | null>(null);
-  const startedAtRef = useRef<number>(0);
+  const {
+    isRunning, isPaused, isBreak,
+    remainingSeconds, completedCount,
+    progress, selectedTaskId, setSelectedTaskId,
+    startTimer, togglePause, resetTimer,
+  } = usePomodoroContext();
 
   const activeTasks = state.tasks.filter(t => t.status !== 'done');
 
-  // Pick random encouragement
-  useEffect(() => {
-    const encouragements = t('encouragements', { returnObjects: true }) as string[];
-    const idx = Math.floor(Math.random() * encouragements.length);
-    setEncouragement(encouragements[idx]);
-  }, [isRunning, t]);
-
-  const stopTimer = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  const completeFocus = useCallback(async () => {
-    stopTimer();
-    setIsRunning(false);
-    setIsPaused(false);
-
-    // Record pomodoro session
-    const session: PomodoroSession = {
-      id: storage.generateId(),
-      taskId: selectedTaskId,
-      startedAt: new Date(startedAtRef.current).toISOString(),
-      endedAt: new Date().toISOString(),
-      durationMinutes: settings.pomodoroFocusMinutes,
-      type: 'focus',
-    };
-    const sessions = await storage.getPomodoroSessions();
-    await storage.savePomodoroSessions([...sessions, session]);
-
-    // Auto-create work log if task selected
-    if (selectedTaskId) {
-      const task = state.tasks.find(t => t.id === selectedTaskId);
-      if (task) {
-        const log: WorkLog = {
-          id: storage.generateId(),
-          content: `${t('pomodoro.focusComplete')}${task.title}`,
-          tags: task.tags,
-          durationMinutes: settings.pomodoroFocusMinutes,
-          date: toISODateString(new Date()),
-          relatedTaskId: selectedTaskId,
-          createdAt: new Date().toISOString(),
-        };
-        dispatch({ type: 'ADD_WORKLOG', payload: log });
-        const logs = [...state.workLogs, log];
-        await storage.saveWorkLogs(logs);
-      }
-    }
-
-    const newCount = completedCount + 1;
-    setCompletedCount(newCount);
-
-    // Start break
-    const breakMinutes = newCount % settings.longBreakInterval === 0
-      ? settings.longBreakMinutes
-      : settings.pomodoroBreakMinutes;
-
-    setIsBreak(true);
-    setTotalSeconds(breakMinutes * 60);
-    setRemainingSeconds(breakMinutes * 60);
-    showToast(t('pomodoro.focusDone'));
-  }, [selectedTaskId, settings, state.tasks, state.workLogs, completedCount, dispatch, stopTimer]);
-
-  const completeBreak = useCallback(() => {
-    stopTimer();
-    setIsBreak(false);
-    setIsRunning(false);
-    setIsPaused(false);
-    setTotalSeconds(settings.pomodoroFocusMinutes * 60);
-    setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
-    showToast(t('pomodoro.breakDone'));
-  }, [settings.pomodoroFocusMinutes, stopTimer]);
-
-  useEffect(() => {
-    if (isRunning && !isPaused) {
-      intervalRef.current = window.setInterval(() => {
-        setRemainingSeconds(prev => {
-          if (prev <= 1) {
-            if (isBreak) {
-              completeBreak();
-            } else {
-              completeFocus();
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => stopTimer();
-  }, [isRunning, isPaused, isBreak, completeFocus, completeBreak, stopTimer]);
-
-  const startTimer = () => {
-    startedAtRef.current = Date.now();
-    setIsRunning(true);
-    setIsPaused(false);
-  };
-
-  const togglePause = () => {
-    setIsPaused(!isPaused);
-  };
-
-  const resetTimer = () => {
-    stopTimer();
-    setIsRunning(false);
-    setIsPaused(false);
-    setIsBreak(false);
-    setTotalSeconds(settings.pomodoroFocusMinutes * 60);
-    setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
-  };
-
-  const progress = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 0;
   const minutes = Math.floor(remainingSeconds / 60);
   const seconds = remainingSeconds % 60;
 
-  // Circle radius and circumference for progress ring
+  const [encouragement, setEncouragement] = useState('');
+
+  useEffect(() => {
+    if (isRunning && !isPaused) {
+      const list = t('encouragements', { returnObjects: true }) as string[];
+      setEncouragement(list[Math.floor(Math.random() * list.length)]);
+    }
+  }, [isRunning, isPaused, t]);
+
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress * circumference);
@@ -157,29 +42,30 @@ export default function PomodoroTimer() {
 
       {/* Task selector */}
       {!isRunning && !isBreak && activeTasks.length > 0 && (
-        <select
-          value={selectedTaskId || ''}
-          onChange={e => setSelectedTaskId(e.target.value || undefined)}
-          className="w-full px-3 py-2 mb-4 bg-white border border-warm-dark rounded-xl text-xs text-text-main outline-none focus:border-primary"
-        >
-          <option value="">{t('pomodoro.selectTask')}</option>
-          {activeTasks.map(t => (
-            <option key={t.id} value={t.id}>{t.title}</option>
-          ))}
-        </select>
+        <div className="relative w-full mb-4">
+          <select
+            value={selectedTaskId || ''}
+            onChange={e => setSelectedTaskId(e.target.value || undefined)}
+            className="w-full px-3 py-2 pr-8 bg-white border border-warm-dark rounded-xl text-xs text-text-main outline-none appearance-none transition-colors focus:border-primary"
+          >
+            <option value="">{t('pomodoro.selectTask')}</option>
+            {activeTasks.map(task => (
+              <option key={task.id} value={task.id}>{task.title}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-sub/50 pointer-events-none" />
+        </div>
       )}
 
       {/* Timer circle */}
       <div className="relative w-48 h-48 mb-4">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 180 180">
-          {/* Background circle */}
           <circle
             cx="90" cy="90" r={radius}
             fill="none"
             stroke="var(--color-warm-dark)"
             strokeWidth="8"
           />
-          {/* Progress circle */}
           <motion.circle
             cx="90" cy="90" r={radius}
             fill="none"

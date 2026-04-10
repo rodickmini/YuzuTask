@@ -21,7 +21,7 @@ export default {
         'text-sub': 'var(--color-text-sub)',
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Hiragino Sans"', '"Noto Sans SC"', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"PingFang SC"', '"Noto Sans SC"', '"Hiragino Sans"', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',

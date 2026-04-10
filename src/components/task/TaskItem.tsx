@@ -24,8 +24,8 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
       initial="initial"
       animate="animate"
       exit="exit"
-      whileHover={{ scale: 1.01 }}
-      className={`group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card cursor-pointer transition-opacity duration-300 ${
+      whileHover={{ backgroundColor: 'rgba(240, 230, 222, 0.4)' }}
+      className={`group flex items-start gap-3 p-3 rounded-2xl border border-warm-dark/50 cursor-pointer transition-all duration-200 ${
         isDone ? 'opacity-50' : ''
       }`}
       onClick={() => onClick(task)}
@@ -34,21 +34,23 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
       <motion.button
         whileTap={{ scale: 0.8 }}
         onClick={(e) => { e.stopPropagation(); onToggle(task); }}
-        className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+        className="mt-0.5 -ml-1 -mt-0.5 p-1 flex-shrink-0"
+      >
+        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
           isDone
             ? 'bg-primary border-primary'
             : `border-warm-dark hover:border-primary ${priorityConfig.color.replace('bg-', 'border-')}`
-        }`}
-      >
-        {isDone && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-          >
-            <Check size={12} className="text-white" />
-          </motion.div>
-        )}
+        }`}>
+          {isDone && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+            >
+              <Check size={12} className="text-white" />
+            </motion.div>
+          )}
+        </div>
       </motion.button>
 
       {/* Content */}
