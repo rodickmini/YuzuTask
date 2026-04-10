@@ -1,0 +1,35 @@
+## Codebase Patterns
+- Vite `base: './'` is required for Chrome extensions so asset paths are relative (not absolute `/`)
+- `public/` directory contents are copied to `dist/` root by Vite, so Chrome extension paths should reference them without `public/` prefix (e.g., `icons/icon-128.png` not `public/icons/icon-128.png`)
+- Manifest.json is not auto-copied by Vite; use a `writeBundle` plugin hook to copy it
+- Background service worker entry is configured as a separate Rollup input with custom `entryFileNames` to output as `background.js` at dist root
+- `npm run build` runs `tsc && vite build` — typecheck first, then build
+
+# Ralph Progress Log
+Started: Fri Apr 10 15:29:46 CST 2026
+---
+
+## Fri Apr 10 15:53 - US-001
+- Fixed vite build config: moved `index.html` from `src/newtab/` to project root, added `base: './'` for relative asset paths, added copy-manifest plugin, added background entry point with custom output filename
+- Fixed background service worker icon paths from `public/icons/` to `icons/` (correct for extension context)
+- Files changed: `vite.config.ts`, `index.html` (moved from `src/newtab/index.html`), `src/background/index.ts`
+- **Learnings for future iterations:**
+  - Chrome extensions need relative paths (`./assets/...`) not absolute (`/assets/...`) in HTML
+  - Vite's `publicDir` copies to dist root, so references in code should strip the `public/` prefix
+  - The `copy-manifest` plugin uses `writeBundle` hook which runs after Vite writes output files
+---
+
+## Fri Apr 10 16:05 - US-002
+- Verified extension loads in Chrome by thorough static analysis (no browser testing tools available)
+- Build passes (`npm run build` = `tsc && vite build`), typecheck passes (`tsc --noEmit`)
+- Verified dist output structure matches manifest.json expectations: `index.html` at root, `background.js` at root, `manifest.json` copied, icons in `icons/` dir, CSS/JS use relative `./assets/` paths
+- storage.ts has proper `isChromeStorage()` guard for non-Chrome environments
+- Background service worker code is correct: onInstalled sets up weekly alarm, alarm listener differentiates weekly-report and pomodoro-end, message listeners handle SET_WEEKLY_ALARM and CANCEL_ALARM
+- No code changes were needed — US-001's build fixes already produced a correct extension output
+- Files changed: `scripts/ralph/prd.json` (marked US-002 passes)
+- **Learnings for future iterations:**
+  - `chrome.alarms.create` max `periodInMinutes` is 10080 (= 7 days), the code uses exactly this for weekly recurrence
+  - `storage.ts` uses dual-mode (chrome.storage.local / localStorage) — US-003 will clean up the localStorage fallback
+  - SettingsPage.tsx has a direct `chrome.storage.local.clear()` call (line 121) that bypasses storage.ts — should be consistent with the storage abstraction
+  - Manual browser verification is still needed to fully confirm UI rendering
+---
