@@ -1,17 +1,29 @@
 // Background Service Worker for TaskTab
 // Handles alarms and notifications
 
-// Set up weekly report alarm on install
+// --- Notification click handler ---
+// Opens/focuses a new tab when user clicks a notification
+chrome.notifications.onClicked.addListener((_notificationId) => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('index.html') });
+});
+
+// --- Set up weekly report alarm on install ---
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get('tasktab_settings', (result) => {
     const settings = result.tasktab_settings;
-    if (settings?.weeklyReport?.enabled) {
-      setupWeeklyAlarm(settings.weeklyReport);
+    if (!settings?.weeklyReport?.enabled) return;
+
+    const config = settings.weeklyReport;
+    if (typeof config.dayOfWeek !== 'number' || typeof config.time !== 'string') {
+      console.error('[background] Invalid weeklyReport config in settings, skipping alarm setup');
+      return;
     }
+
+    setupWeeklyAlarm(config);
   });
 });
 
-// Listen for alarm triggers
+// --- Alarm listener ---
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'weekly-report') {
     chrome.notifications.create('weekly-report-reminder', {
@@ -21,9 +33,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       message: '该写周报啦~ 点击新标签页生成本周周报吧！',
       priority: 2,
     });
-  }
-
-  if (alarm.name === 'pomodoro-end') {
+  } else if (alarm.name === 'pomodoro-end') {
     chrome.notifications.create('pomodoro-end', {
       type: 'basic',
       iconUrl: 'icons/icon-128.png',
@@ -34,28 +44,48 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-// Handle messages from popup/newtab
+// --- Message handlers ---
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'SET_WEEKLY_ALARM') {
-    setupWeeklyAlarm(message.config);
+    const config = message.config;
+    if (!config || typeof config.dayOfWeek !== 'number' || typeof config.time !== 'string') {
+      sendResponse({ ok: false, error: 'Invalid config: dayOfWeek (number) and time (string) are required' });
+      return true;
+    }
+    setupWeeklyAlarm(config);
     sendResponse({ ok: true });
-  }
-  if (message.type === 'CANCEL_ALARM') {
-    chrome.alarms.clear(message.name);
-    sendResponse({ ok: true });
+  } else if (message.type === 'CANCEL_ALARM') {
+    const alarmName = message.name;
+    if (typeof alarmName !== 'string') {
+      sendResponse({ ok: false, error: 'Invalid alarm name' });
+      return true;
+    }
+    chrome.alarms.clear(alarmName).then((wasCleared) => {
+      sendResponse({ ok: true, wasCleared });
+    });
+    return true;
   }
   return true;
 });
 
+// --- Helpers ---
 function setupWeeklyAlarm(config: { dayOfWeek: number; time: string }) {
   chrome.alarms.clear('weekly-report');
 
-  const [hours, minutes] = config.time.split(':').map(Number);
+  const parts = config.time.split(':');
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+
+  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    console.error('[background] Invalid time format:', config.time, '— expected HH:MM');
+    return;
+  }
+
   const now = new Date();
   const target = new Date(now);
   target.setHours(hours, minutes, 0, 0);
 
-  // Find next occurrence of target day
+  // Find next occurrence of target day (0=Sunday through 6=Saturday)
   const currentDay = target.getDay();
   let daysUntil = config.dayOfWeek - currentDay;
   if (daysUntil < 0) daysUntil += 7;
