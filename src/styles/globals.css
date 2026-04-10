@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --color-warm: #FFF8F0;
+    --color-primary: #7EB6C9;
+    --color-accent: #F5A7A7;
+    --color-mint: #A8D5BA;
+    --color-cream: #FFD4A5;
+    --color-warm-dark: #F0E6DE;
+    --color-text-main: #4A4A4A;
+    --color-text-sub: #9B9B9B;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,8 +24,8 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Hiragino Sans', 'Noto Sans SC', sans-serif;
-  background-color: #FFF8F0;
-  color: #4A4A4A;
+  background-color: var(--color-warm);
+  color: var(--color-text-main);
   overflow: hidden;
   height: 100vh;
   width: 100vw;
@@ -33,7 +46,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #F0E6DE;
+  background: var(--color-warm-dark);
   border-radius: 3px;
 }
 
@@ -44,5 +57,5 @@ body {
 /* 选中态 */
 ::selection {
   background: rgba(126, 182, 201, 0.2);
-  color: #4A4A4A;
+  color: var(--color-text-main);
 }

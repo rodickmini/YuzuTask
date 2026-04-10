@@ -6,19 +6,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#7EB6C9',
+        primary: 'var(--color-primary)',
         'primary-light': '#A8D4E2',
         'primary-dark': '#5A97AB',
-        accent: '#F5A7A7',
+        accent: 'var(--color-accent)',
         'accent-light': '#FCCFCF',
-        mint: '#A8D5BA',
+        mint: 'var(--color-mint)',
         'mint-light': '#C8E8D4',
-        cream: '#FFD4A5',
+        cream: 'var(--color-cream)',
         'cream-light': '#FFE6C4',
-        warm: '#FFF8F0',
-        'warm-dark': '#F0E6DE',
-        'text-main': '#4A4A4A',
-        'text-sub': '#9B9B9B',
+        warm: 'var(--color-warm)',
+        'warm-dark': 'var(--color-warm-dark)',
+        'text-main': 'var(--color-text-main)',
+        'text-sub': 'var(--color-text-sub)',
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Hiragino Sans"', '"Noto Sans SC"', 'sans-serif'],

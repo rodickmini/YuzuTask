@@ -174,14 +174,14 @@ export default function PomodoroTimer() {
           <circle
             cx="90" cy="90" r={radius}
             fill="none"
-            stroke="#F0E6DE"
+            stroke="var(--color-warm-dark)"
             strokeWidth="8"
           />
           {/* Progress circle */}
           <motion.circle
             cx="90" cy="90" r={radius}
             fill="none"
-            stroke={isBreak ? '#A8D5BA' : '#7EB6C9'}
+            stroke={isBreak ? 'var(--color-mint)' : 'var(--color-primary)'}
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={circumference}

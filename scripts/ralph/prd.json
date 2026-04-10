@@ -95,7 +95,7 @@
         "Verify in browser"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Ensure tailwind.config.js has all the custom colors from the PRD palette."
     },
     {

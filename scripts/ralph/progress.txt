@@ -7,6 +7,7 @@
 - All chrome.storage.local access should go through `src/utils/storage.ts` — never call chrome.storage directly from UI components
 - Shared Framer Motion animation variants live in `src/components/ui/animations.ts` — use named states (initial/animate/exit) with the `variants` prop
 - Tag selection logic should use `src/hooks/useTagSelection.ts` hook; tag selection UI should use `src/components/ui/TagSelector.tsx`
+- Design theme colors are defined as CSS custom properties in `src/styles/globals.css` under `:root` — Tailwind config references these via `var(--color-*)`, SVG and raw CSS should use the same variables
 
 # Ralph Progress Log
 Started: Fri Apr 10 15:29:46 CST 2026
@@ -74,4 +75,18 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - When merging multiple variant objects spread them: `variants={{ ...cardIn, ...slideOutLeft }}` — this works because each defines different state keys
   - The `src/hooks/` directory didn't exist yet — created it as the home for custom hooks
   - Tag toggle logic is identical across forms — the `useTagSelection` hook with `initial` parameter handles both empty and pre-populated cases
+---
+
+## Thu Apr 10 17:50 - US-006
+- Centralized design theme colors as CSS custom properties in `globals.css` `:root` block — single source of truth for all colors
+- Updated `tailwind.config.js` to reference CSS variables (`var(--color-primary)`, etc.) instead of hardcoded hex values
+- Updated `globals.css` body, scrollbar, and selection styles to use CSS variables
+- Fixed hardcoded SVG stroke colors in PomodoroTimer.tsx to use CSS variables
+- Verified all components already use consistent Tailwind theme classes (`bg-white` for cards is correct per FEATURES.md spec)
+- Verified shadows (`shadow-soft`, `shadow-card`, `shadow-soft-lg`) and borders (`border-warm-dark`) are consistent across all components
+- Files changed: `src/styles/globals.css`, `tailwind.config.js`, `src/components/pomodoro/PomodoroTimer.tsx`
+- **Learnings for future iterations:**
+  - Tailwind CSS classes can't be used on SVG `stroke` attributes — use CSS custom properties instead
+  - The codebase was already well-aligned with the FEATURES.md design spec; main gap was hardcoded hex values in SVG elements
+  - Manual browser verification is needed to visually confirm the theme renders correctly
 ---
