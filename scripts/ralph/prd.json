@@ -1,0 +1,138 @@
+{
+  "project": "TaskTab",
+  "branchName": "ralph/fix-and-optimize",
+  "description": "Fix Chrome extension loading failure and optimize/refactor the codebase",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Fix vite build config for Chrome extension",
+      "description": "As a developer, I need the build output to match the manifest.json paths so the extension loads correctly in Chrome.",
+      "acceptanceCriteria": [
+        "vite.config.ts outputs index.html to dist/index.html (not dist/src/newtab/index.html)",
+        "manifest.json is copied to dist/ during build",
+        "manifest.json newtab path points to the correct HTML file location",
+        "background.js is output to dist/background.js at root level",
+        "CSS and JS assets use correct relative paths from the HTML file",
+        "`npm run build` succeeds with no errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Currently index.html ends up at dist/src/newtab/index.html but manifest references index.html at root. manifest.json also not copied to dist."
+    },
+    {
+      "id": "US-002",
+      "title": "Verify extension loads in Chrome",
+      "description": "As a user, I need the extension to load without errors when added to Chrome via chrome://extensions.",
+      "acceptanceCriteria": [
+        "Extension loads in chrome://extensions without errors",
+        "Opening a new tab shows the TaskTab UI",
+        "chrome.storage.local works (no undefined errors)",
+        "Background service worker registers without errors",
+        "DevTools console shows no critical errors",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "After US-001 fixes the build config, verify the full extension lifecycle works. Check storage.ts has proper fallback for non-Chrome environments."
+    },
+    {
+      "id": "US-003",
+      "title": "Fix storage layer and remove localStorage fallback in production",
+      "description": "As a developer, the storage utility should cleanly use chrome.storage.local in the extension context without fragile fallbacks.",
+      "acceptanceCriteria": [
+        "storage.ts uses chrome.storage.local as primary storage",
+        "Remove or guard localStorage fallback so it doesn't silently mask bugs in the extension",
+        "Add proper error handling for chrome.storage API failures",
+        "All existing store operations (tasks, worklogs, settings, sessions) still work",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "The localStorage fallback can hide real issues. In a Chrome extension context, chrome.storage.local should always be available."
+    },
+    {
+      "id": "US-004",
+      "title": "Refactor store to use cleaner patterns",
+      "description": "As a developer, the store should be well-structured with proper TypeScript types and clean reducer logic.",
+      "acceptanceCriteria": [
+        "Reducer actions are strongly typed with discriminated unions",
+        "State type is explicit and complete",
+        "Context provider properly handles loading and error states",
+        "No unnecessary re-renders from broad context updates",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Review store/index.tsx for type safety and patterns."
+    },
+    {
+      "id": "US-005",
+      "title": "Refactor components for consistency and reusability",
+      "description": "As a developer, components should follow consistent patterns for props, event handling, and styling.",
+      "acceptanceCriteria": [
+        "All components use consistent prop typing patterns",
+        "Shared UI components (Modal, Button, Input, Toast, Tag) are properly generic and reusable",
+        "No duplicated logic across task/worklog forms",
+        "Framer Motion animations follow a consistent pattern",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Focus on UI components in src/components/ui/ and form components."
+    },
+    {
+      "id": "US-006",
+      "title": "Fix and enhance global styles for the design theme",
+      "description": "As a user, the visual design should match the Japanese fresh/minimal aesthetic defined in FEATURES.md.",
+      "acceptanceCriteria": [
+        "Color scheme matches FEATURES.md: #FFF8F0 background, #7EB6C9 primary, #F5A7A7 accent, #A8D5BA and #FFD4A5 secondary",
+        "Card shadows are soft and consistent across all card components",
+        "Typography uses warm gray (#4A4A4A) consistently",
+        "Border color (#F0E6DE) used consistently across all bordered elements",
+        "Tailwind config defines all custom colors as theme extensions",
+        "Typecheck passes",
+        "Verify in browser"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Ensure tailwind.config.js has all the custom colors from the PRD palette."
+    },
+    {
+      "id": "US-007",
+      "title": "Add missing animations and interaction polish",
+      "description": "As a user, interactions should feel lively with the animations described in FEATURES.md.",
+      "acceptanceCriteria": [
+        "Task completion has elastic checkbox animation, done items have strikethrough + fade",
+        "Task add: card fades in from bottom",
+        "Task delete: card slides left and fades out",
+        "Page load: modules fade in with staggered delay",
+        "Greeting emoji has gentle sway animation",
+        "Modal has frosted glass backdrop + elastic scale entrance",
+        "Buttons have hover scale-up and tap scale-down feedback",
+        "Toast slides in from right and auto-dismisses",
+        "Typecheck passes",
+        "Verify in browser"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "FEATURES.md has a detailed animation table. Cross-reference with existing framer-motion usage."
+    },
+    {
+      "id": "US-008",
+      "title": "Improve background service worker reliability",
+      "description": "As a developer, the background service worker should reliably handle alarms and notifications.",
+      "acceptanceCriteria": [
+        "onInstalled handler sets up the weekly report alarm correctly",
+        "Alarm listener properly differentiates between weekly-report and pomodoro-end alarms",
+        "Notification click handler opens/focuses the new tab",
+        "Message listeners for SET_WEEKLY_ALARM and CANCEL_ALARM work correctly",
+        "Service worker handles edge cases (alarm already set, missing settings)",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Review src/background/index.ts for robustness."
+    }
+  ]
+}
