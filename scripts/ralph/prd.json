@@ -115,7 +115,7 @@
         "Verify in browser"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "FEATURES.md has a detailed animation table. Cross-reference with existing framer-motion usage."
     },
     {

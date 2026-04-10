@@ -6,6 +6,9 @@
 - `npm run build` runs `tsc && vite build` — typecheck first, then build
 - All chrome.storage.local access should go through `src/utils/storage.ts` — never call chrome.storage directly from UI components
 - Shared Framer Motion animation variants live in `src/components/ui/animations.ts` — use named states (initial/animate/exit) with the `variants` prop
+- `cardIn` variant includes both entrance (fade up) and exit (slide left) animations — use it for list items that need both
+- Use `staggerContainer` + `staggerItem` variants for page load animations; don't use manual delay values
+- Form components in modals should use `fadeInUp` (spring entrance from bottom) rather than `cardIn`
 - Tag selection logic should use `src/hooks/useTagSelection.ts` hook; tag selection UI should use `src/components/ui/TagSelector.tsx`
 - Design theme colors are defined as CSS custom properties in `src/styles/globals.css` under `:root` — Tailwind config references these via `var(--color-*)`, SVG and raw CSS should use the same variables
 
@@ -89,4 +92,19 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - Tailwind CSS classes can't be used on SVG `stroke` attributes — use CSS custom properties instead
   - The codebase was already well-aligned with the FEATURES.md design spec; main gap was hardcoded hex values in SVG elements
   - Manual browser verification is needed to visually confirm the theme renders correctly
+---
+
+## Thu Apr 10 18:30 - US-007
+- Enhanced animations.ts: consolidated exit animation into `cardIn` variant, added `staggerContainer`/`staggerItem` for page load, made `fadeInUp` use spring physics
+- Updated TaskItem: animated done-state opacity transition with `transition-opacity duration-300`, animated title with motion.span for smooth strikethrough fade
+- Updated TaskForm/WorkLogForm: switched from `cardIn` to `fadeInUp` for more pronounced bottom entrance in modals
+- Updated NewTab: replaced manual delay-based stagger with `staggerContainer`/`staggerItem` variants for all views (home, worklog, weekly, settings)
+- Updated WorkLogList: simplified to use consolidated `cardIn` instead of spreading `cardIn` + `slideOutLeft`
+- Verified existing animations already matched spec: greeting emoji sway, modal frosted glass + spring, button hover/tap, toast slide-in
+- Files changed: `src/components/ui/animations.ts`, `src/components/task/TaskItem.tsx`, `src/components/task/TaskForm.tsx`, `src/components/worklog/WorkLogList.tsx`, `src/components/worklog/WorkLogForm.tsx`, `src/newtab/NewTab.tsx`
+- **Learnings for future iterations:**
+  - `cardIn` now bundles entrance + exit — list items only need one variant import
+  - `staggerContainer`/`staggerItem` is cleaner than manual delay props for coordinated entrance animations
+  - Forms in modals benefit from `fadeInUp` (spring) over `cardIn` (tween) for a more playful feel
+  - Manual browser verification is needed to confirm all animations feel right in practice
 ---
