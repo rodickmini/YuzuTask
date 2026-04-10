@@ -39,3 +39,10 @@ yuzutask-extension.zip
 
 # Scripts temp
 scripts/ralph/.last-branch
+
+# AI assistant config
+.claude/
+
+# Build artifacts
+dist
+yuzutask-extension.zip
