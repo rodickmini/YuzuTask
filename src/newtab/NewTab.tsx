@@ -8,6 +8,7 @@ import WorkLogList from '../components/worklog/WorkLogList';
 import WeeklyReport from '../components/weekly/WeeklyReport';
 import SettingsPage from '../components/settings/SettingsPage';
 import Toast from '../components/ui/Toast';
+import { staggerContainer, staggerItem } from '../components/ui/animations';
 
 function MainContent() {
   const { state } = useAppState();
@@ -35,12 +36,15 @@ function MainContent() {
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {state.currentView === 'home' && (
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 h-full">
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 h-full"
+          >
             {/* Left: Pomodoro */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+              variants={staggerItem}
               className="bg-white rounded-3xl shadow-card p-5 h-fit"
             >
               <PomodoroTimer />
@@ -48,20 +52,19 @@ function MainContent() {
 
             {/* Right: Tasks */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
+              variants={staggerItem}
               className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
             >
               <TaskList />
             </motion.div>
-          </div>
+          </motion.div>
         )}
 
         {state.currentView === 'worklog' && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            variants={staggerItem}
+            initial="initial"
+            animate="animate"
             className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
           >
             <WorkLogList />
@@ -70,8 +73,9 @@ function MainContent() {
 
         {state.currentView === 'weekly' && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            variants={staggerItem}
+            initial="initial"
+            animate="animate"
             className="bg-white rounded-3xl shadow-card p-5 h-full min-h-0"
           >
             <WeeklyReport />
@@ -80,8 +84,9 @@ function MainContent() {
 
         {state.currentView === 'settings' && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            variants={staggerItem}
+            initial="initial"
+            animate="animate"
             className="h-full overflow-auto"
           >
             <SettingsPage />

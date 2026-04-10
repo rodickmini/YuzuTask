@@ -4,7 +4,7 @@ import type { Task } from '../../types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import TagSelector from '../ui/TagSelector';
-import { cardIn } from '../ui/animations';
+import { fadeInUp } from '../ui/animations';
 import { useTagSelection } from '../../hooks/useTagSelection';
 import { generateId } from '../../utils/storage';
 
@@ -46,7 +46,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
 
   return (
     <motion.form
-      variants={cardIn}
+      variants={fadeInUp}
       initial="initial"
       animate="animate"
       onSubmit={handleSubmit}

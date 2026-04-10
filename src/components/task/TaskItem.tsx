@@ -3,7 +3,7 @@ import { Check, Trash2, Clock, AlertCircle } from 'lucide-react';
 import type { Task } from '../../types';
 import { PRIORITY_CONFIG } from '../../types';
 import Tag from '../ui/Tag';
-import { cardIn, slideOutLeft } from '../ui/animations';
+import { cardIn } from '../ui/animations';
 import { formatRelativeDate, formatDuration } from '../../utils/date';
 
 interface TaskItemProps {
@@ -20,13 +20,13 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
   return (
     <motion.div
       layout
-      variants={{ ...cardIn, ...slideOutLeft }}
+      variants={cardIn}
       initial="initial"
       animate="animate"
       exit="exit"
       whileHover={{ scale: 1.01 }}
-      className={`group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card transition-all duration-200 cursor-pointer ${
-        isDone ? 'opacity-60' : ''
+      className={`group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card cursor-pointer transition-opacity duration-300 ${
+        isDone ? 'opacity-50' : ''
       }`}
       onClick={() => onClick(task)}
     >
@@ -54,9 +54,13 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`text-sm font-medium truncate ${isDone ? 'line-through text-text-sub' : 'text-text-main'}`}>
+          <motion.span
+            className={`text-sm font-medium truncate ${isDone ? 'line-through text-text-sub' : 'text-text-main'}`}
+            animate={{ opacity: isDone ? 0.6 : 1 }}
+            transition={{ duration: 0.3 }}
+          >
             {task.title}
-          </span>
+          </motion.span>
           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${priorityConfig.color}`} />
         </div>
         <div className="flex items-center gap-2 mt-1 flex-wrap">

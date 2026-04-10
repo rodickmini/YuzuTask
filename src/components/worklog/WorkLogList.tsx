@@ -6,7 +6,7 @@ import WorkLogForm from './WorkLogForm';
 import CalendarView from './CalendarView';
 import Tag from '../ui/Tag';
 import Modal from '../ui/Modal';
-import { cardIn, slideOutLeft, expandCollapse, fadeIn } from '../ui/animations';
+import { cardIn, expandCollapse, fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
@@ -146,7 +146,7 @@ export default function WorkLogList() {
                   <motion.div
                     key={log.id}
                     layout
-                    variants={{ ...cardIn, ...slideOutLeft }}
+                    variants={cardIn}
                     initial="initial"
                     animate="animate"
                     exit="exit"
