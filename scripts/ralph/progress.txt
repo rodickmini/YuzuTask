@@ -88,3 +88,16 @@ Started: Fri Apr 10 20:28:09 CST 2026
   - `pomodoro.focusComplete` is used as a prefix concatenated with task title — works because locale value ends with full-width colon (：)
   - showToast messages can accept i18n t() calls directly since they expect strings
 ---
+
+## [2026-04-10] - US-006
+- Internationalized all work log component hardcoded Chinese strings
+- WorkLogList.tsx: replaced "工作记录", "今日", "记录", "筛选：", "清除", empty state text, modal title, toast messages with i18n t() calls
+- WorkLogForm.tsx: replaced "记录一下你做了什么...", "时长(分钟)", "日期", "取消", "记录" with i18n t() calls
+- CalendarView.tsx: replaced hardcoded `zhCN` locale with dynamic `getDateFnsLocale()`, changed `'M月d日'` format to locale-aware `'MMM d'` for date range and weekday display
+- All worklog locale keys were already defined in zh.json/en.json/ja.json from US-001 — no locale file changes needed
+- Files changed: src/components/worklog/WorkLogList.tsx, WorkLogForm.tsx, CalendarView.tsx
+- **Learnings for future iterations:**
+  - `format(day, 'MMM d', { locale: getDateFnsLocale() })` produces "4月6日" for zh/ja and "Apr 6" for en — a single format string works across all three locales
+  - CalendarView didn't need useTranslation hook since it has no text labels — only date formatting needed locale awareness
+  - WorkLogForm labelKey pattern: Input `label` prop accepts t() calls directly since it expects a ReactNode
+---
