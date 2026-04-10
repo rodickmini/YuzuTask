@@ -3,6 +3,7 @@ import { Check, Trash2, Clock, AlertCircle } from 'lucide-react';
 import type { Task } from '../../types';
 import { PRIORITY_CONFIG } from '../../types';
 import Tag from '../ui/Tag';
+import { cardIn, slideOutLeft } from '../ui/animations';
 import { formatRelativeDate, formatDuration } from '../../utils/date';
 
 interface TaskItemProps {
@@ -19,9 +20,10 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -100, transition: { duration: 0.3 } }}
+      variants={{ ...cardIn, ...slideOutLeft }}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       whileHover={{ scale: 1.01 }}
       className={`group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card transition-all duration-200 cursor-pointer ${
         isDone ? 'opacity-60' : ''

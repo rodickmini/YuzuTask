@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Tag from '../ui/Tag';
+import { expandCollapse } from '../ui/animations';
 
 interface TaskFilterProps {
   tags: string[];
@@ -51,8 +52,9 @@ export default function TaskFilter({ tags, selectedTags, onTagToggle, statusFilt
           </button>
           {expanded && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              variants={expandCollapse}
+              initial="initial"
+              animate="animate"
               className="flex flex-wrap gap-1.5"
             >
               {tags.map(tag => (

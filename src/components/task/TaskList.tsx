@@ -6,6 +6,7 @@ import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
 import TaskFilter from './TaskFilter';
 import Modal from '../ui/Modal';
+import { fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
@@ -142,8 +143,9 @@ export default function TaskList() {
 
         {filteredTasks.length === 0 && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={fadeIn}
+            initial="initial"
+            animate="animate"
             className="text-center text-text-sub text-sm py-8"
           >
             <p className="text-2xl mb-2">🌱</p>

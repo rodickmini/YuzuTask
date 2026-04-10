@@ -6,6 +6,7 @@ import WorkLogForm from './WorkLogForm';
 import CalendarView from './CalendarView';
 import Tag from '../ui/Tag';
 import Modal from '../ui/Modal';
+import { cardIn, slideOutLeft, expandCollapse, fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
@@ -94,9 +95,10 @@ export default function WorkLogList() {
       <AnimatePresence>
         {showCalendar && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            variants={expandCollapse}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="mb-3 overflow-hidden"
           >
             <CalendarView
@@ -111,8 +113,9 @@ export default function WorkLogList() {
       {/* Date filter indicator */}
       {selectedDate && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          variants={fadeIn}
+          initial="initial"
+          animate="animate"
           className="flex items-center gap-2 mb-2 text-xs"
         >
           <span className="text-text-sub">筛选：</span>
@@ -143,9 +146,10 @@ export default function WorkLogList() {
                   <motion.div
                     key={log.id}
                     layout
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
+                    variants={{ ...cardIn, ...slideOutLeft }}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                     className="group flex items-start gap-3 p-3 bg-white rounded-2xl shadow-card"
                   >
                     <div className="flex-1 min-w-0">
@@ -175,8 +179,9 @@ export default function WorkLogList() {
 
         {groupedLogs.length === 0 && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={fadeIn}
+            initial="initial"
+            animate="animate"
             className="text-center text-text-sub text-sm py-8"
           >
             <p className="text-2xl mb-2">📚</p>

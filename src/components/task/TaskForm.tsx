@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 import type { Task } from '../../types';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import Tag from '../ui/Tag';
+import TagSelector from '../ui/TagSelector';
+import { cardIn } from '../ui/animations';
+import { useTagSelection } from '../../hooks/useTagSelection';
 import { generateId } from '../../utils/storage';
 
 interface TaskFormProps {
@@ -17,15 +19,9 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
   const [priority, setPriority] = useState<Task['priority']>(task?.priority || 'medium');
-  const [selectedTags, setSelectedTags] = useState<string[]>(task?.tags || []);
+  const { selectedTags, toggleTag } = useTagSelection(task?.tags || []);
   const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimatedMinutes?.toString() || '');
   const [dueDate, setDueDate] = useState(task?.dueDate || '');
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +46,9 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
 
   return (
     <motion.form
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      variants={cardIn}
+      initial="initial"
+      animate="animate"
       onSubmit={handleSubmit}
       className="space-y-4"
     >
@@ -92,19 +89,7 @@ export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps
       </div>
 
       {/* Tags */}
-      <div>
-        <span className="text-xs text-text-sub mb-1 block">标签：</span>
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map(tag => (
-            <Tag
-              key={tag}
-              label={tag}
-              selected={selectedTags.includes(tag)}
-              onClick={() => toggleTag(tag)}
-            />
-          ))}
-        </div>
-      </div>
+      <TagSelector tags={tags} selectedTags={selectedTags} onToggle={toggleTag} />
 
       {/* Duration & Due date */}
       <div className="flex gap-3">
