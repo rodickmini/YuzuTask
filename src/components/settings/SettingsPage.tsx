@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppState } from '../../store';
+import { useTranslation } from '../../i18n';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import * as storage from '../../utils/storage';
@@ -8,6 +9,7 @@ import { showToast } from '../ui/Toast';
 
 export default function SettingsPage() {
   const { state, dispatch } = useAppState();
+  const { t } = useTranslation();
   const [focusMinutes, setFocusMinutes] = useState(state.settings.pomodoroFocusMinutes.toString());
   const [breakMinutes, setBreakMinutes] = useState(state.settings.pomodoroBreakMinutes.toString());
   const [longBreakMinutes, setLongBreakMinutes] = useState(state.settings.longBreakMinutes.toString());
@@ -26,7 +28,7 @@ export default function SettingsPage() {
     };
     dispatch({ type: 'SET_SETTINGS', payload: settings });
     await storage.saveSettings(settings);
-    showToast('设置已保存~');
+    showToast(t('settings.saved'));
   };
 
   const addTag = () => {
@@ -48,33 +50,33 @@ export default function SettingsPage() {
       className="max-w-md mx-auto space-y-6"
     >
       <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-        <span className="text-base">⚙️</span> 设置
+        <span className="text-base">⚙️</span> {t('settings.title')}
       </h3>
 
       {/* Pomodoro settings */}
       <div className="bg-white rounded-2xl p-4 shadow-card space-y-4">
-        <h4 className="text-sm font-medium text-text-main">🍅 番茄钟</h4>
+        <h4 className="text-sm font-medium text-text-main">{t('settings.pomodoroSection')}</h4>
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label="专注时长(分钟)"
+            label={t('settings.focusDuration')}
             type="number"
             value={focusMinutes}
             onChange={e => setFocusMinutes(e.target.value)}
           />
           <Input
-            label="休息时长(分钟)"
+            label={t('settings.breakDuration')}
             type="number"
             value={breakMinutes}
             onChange={e => setBreakMinutes(e.target.value)}
           />
           <Input
-            label="长休息时长(分钟)"
+            label={t('settings.longBreakDuration')}
             type="number"
             value={longBreakMinutes}
             onChange={e => setLongBreakMinutes(e.target.value)}
           />
           <Input
-            label="长休息间隔(次)"
+            label={t('settings.longBreakInterval')}
             type="number"
             value={longBreakInterval}
             onChange={e => setLongBreakInterval(e.target.value)}
@@ -84,14 +86,14 @@ export default function SettingsPage() {
 
       {/* Tags */}
       <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
-        <h4 className="text-sm font-medium text-text-main">🏷️ 自定义标签</h4>
+        <h4 className="text-sm font-medium text-text-main">{t('settings.tagsSection')}</h4>
         <div className="flex flex-wrap gap-2">
           {tags.map(tag => (
             <span
               key={tag}
               className="inline-flex items-center gap-1 px-3 py-1 bg-warm-dark rounded-full text-xs text-text-main"
             >
-              #{tag}
+              #{tag.startsWith('tag.') ? t(tag, tag) : tag}
               <button onClick={() => removeTag(tag)} className="hover:text-accent">✕</button>
             </span>
           ))}
@@ -99,36 +101,36 @@ export default function SettingsPage() {
         <div className="flex gap-2">
           <input
             type="text"
-            placeholder="添加新标签..."
+            placeholder={t('settings.addTagPlaceholder')}
             value={newTag}
             onChange={e => setNewTag(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addTag()}
             className="flex-1 px-3 py-2 bg-warm border border-warm-dark rounded-xl text-sm outline-none focus:border-primary"
           />
-          <Button size="sm" onClick={addTag}>添加</Button>
+          <Button size="sm" onClick={addTag}>{t('settings.addTag')}</Button>
         </div>
       </div>
 
       {/* Data management */}
       <div className="bg-white rounded-2xl p-4 shadow-card space-y-3">
-        <h4 className="text-sm font-medium text-text-main">💾 数据管理</h4>
-        <p className="text-xs text-text-sub">所有数据保存在浏览器本地，不会上传到任何服务器</p>
+        <h4 className="text-sm font-medium text-text-main">{t('settings.dataSection')}</h4>
+        <p className="text-xs text-text-sub">{t('settings.dataNotice')}</p>
         <Button
           variant="ghost"
           size="sm"
           onClick={async () => {
-            if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
+            if (confirm(t('settings.clearDataConfirm'))) {
               await storage.clearAll();
               location.reload();
             }
           }}
         >
-          清除所有数据
+          {t('settings.clearData')}
         </Button>
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave}>保存设置</Button>
+        <Button onClick={handleSave}>{t('settings.saveSettings')}</Button>
       </div>
     </motion.div>
   );
