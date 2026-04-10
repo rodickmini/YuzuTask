@@ -101,3 +101,32 @@ Started: Fri Apr 10 20:28:09 CST 2026
   - CalendarView didn't need useTranslation hook since it has no text labels — only date formatting needed locale awareness
   - WorkLogForm labelKey pattern: Input `label` prop accepts t() calls directly since it expects a ReactNode
 ---
+
+## [2026-04-10] - US-007
+- Internationalized all WeeklyReport.tsx hardcoded Chinese strings
+- Replaced: title, currentWeek label, stats labels (workLogs, completedTasks, totalHours), description text, generate/regenerate/copy buttons, toast messages, settings modal title/labels/day-of-week options/template label/cancel/save buttons
+- Replaced hardcoded `zhCN` locale with dynamic `getDateFnsLocale()` for week date range formatting
+- Added `common.cancel` and `common.save` locale keys to all 3 locale files (reusable across components)
+- Added `weekly.templateHint` locale key for the placeholder hint text
+- Report template default content was already locale-aware from US-002 (uses `{{t:key}}` syntax)
+- Generated report text was already i18n'd in US-002 (report.ts uses i18n.t())
+- Files changed: src/components/weekly/WeeklyReport.tsx, src/i18n/locales/zh.json, en.json, ja.json
+- **Learnings for future iterations:**
+  - `common.cancel` and `common.save` added as shared locale keys — future components should reuse these instead of component-specific cancel/save keys
+  - WeeklyReport had a lot of duplicated Monday-calculation logic (3 inline filters) — this is pre-existing tech debt, not introduced by i18n
+  - The `weekly.day.0` through `weekly.day.6` keys were already defined from US-001 — always check existing locale keys before adding new ones
+---
+
+## [2026-04-10] - US-008
+- Internationalized all SettingsPage.tsx hardcoded Chinese strings with i18n t() calls
+- Replaced: page title, pomodoro section, input labels (focus/break/long break/interval), tags section, tag display names (resolved via `tag.startsWith('tag.') ? t(tag, tag) : tag`), add tag placeholder/button, data management section, data notice, clear data confirm dialog/button, save settings button, toast message
+- Modal.tsx: no text strings (close button is X icon only) — no changes needed
+- Toast.tsx: no default text (messages passed via props) — no changes needed
+- Tag.tsx and TagSelector.tsx: already internationalized in US-004 — no changes needed
+- All locale keys already existed in zh.json/en.json/ja.json from US-001 — no locale file changes needed
+- Files changed: src/components/settings/SettingsPage.tsx
+- **Learnings for future iterations:**
+  - Tag display in SettingsPage uses same `tag.startsWith('tag.') ? t(tag, tag) : tag` pattern as Tag.tsx — consider extracting to a shared utility if it appears again
+  - Modal.tsx has no user-facing text — the close button is only an X icon, not text
+  - SettingsPage tag list renders raw spans (not Tag component) — needed inline i18n resolution rather than using Tag component
+---
