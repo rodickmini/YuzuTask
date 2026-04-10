@@ -4,6 +4,7 @@
 - Manifest.json is not auto-copied by Vite; use a `writeBundle` plugin hook to copy it
 - Background service worker entry is configured as a separate Rollup input with custom `entryFileNames` to output as `background.js` at dist root
 - `npm run build` runs `tsc && vite build` — typecheck first, then build
+- All chrome.storage.local access should go through `src/utils/storage.ts` — never call chrome.storage directly from UI components
 
 # Ralph Progress Log
 Started: Fri Apr 10 15:29:46 CST 2026
@@ -32,4 +33,16 @@ Started: Fri Apr 10 15:29:46 CST 2026
   - `storage.ts` uses dual-mode (chrome.storage.local / localStorage) — US-003 will clean up the localStorage fallback
   - SettingsPage.tsx has a direct `chrome.storage.local.clear()` call (line 121) that bypasses storage.ts — should be consistent with the storage abstraction
   - Manual browser verification is still needed to fully confirm UI rendering
+---
+
+## Fri Apr 10 16:30 - US-003
+- Removed localStorage fallback from storage.ts `get()` and `set()` — reads now return defaultValue with a console.error when chrome.storage is unavailable; writes throw a `StorageError`
+- Added `StorageError` class with descriptive messages for chrome.storage API failures
+- Added `clearAll()` export to storage.ts so all storage operations go through the abstraction layer
+- Fixed SettingsPage.tsx direct `chrome.storage.local.clear()` call to use `storage.clearAll()`
+- Files changed: `src/utils/storage.ts`, `src/components/settings/SettingsPage.tsx`
+- **Learnings for future iterations:**
+  - The background service worker (`src/background/index.ts`) can still use `chrome.storage.local` directly since it only runs in extension context
+  - TypeScript requires explicit `cause?: unknown` property declaration on custom Error subclasses (ES2022 `Error.cause` isn't in TS lib types by default)
+  - All UI components must use storage.ts, not chrome.storage directly — added this to Codebase Patterns
 ---

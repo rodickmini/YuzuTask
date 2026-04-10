@@ -48,7 +48,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "The localStorage fallback can hide real issues. In a Chrome extension context, chrome.storage.local should always be available."
     },
     {
