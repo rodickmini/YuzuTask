@@ -16,7 +16,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'weekly-report') {
     chrome.notifications.create('weekly-report-reminder', {
       type: 'basic',
-      iconUrl: 'public/icons/icon-128.png',
+      iconUrl: 'icons/icon-128.png',
       title: 'TaskTab 周报提醒',
       message: '该写周报啦~ 点击新标签页生成本周周报吧！',
       priority: 2,
@@ -26,7 +26,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'pomodoro-end') {
     chrome.notifications.create('pomodoro-end', {
       type: 'basic',
-      iconUrl: 'public/icons/icon-128.png',
+      iconUrl: 'icons/icon-128.png',
       title: '番茄钟结束',
       message: '专注时间结束啦，休息一下吧~',
       priority: 2,
