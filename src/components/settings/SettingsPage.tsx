@@ -118,7 +118,7 @@ export default function SettingsPage() {
           size="sm"
           onClick={async () => {
             if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
-              await chrome.storage.local.clear();
+              await storage.clearAll();
               location.reload();
             }
           }}

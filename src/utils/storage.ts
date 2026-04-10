@@ -13,20 +13,37 @@ function isChromeStorage(): boolean {
   return typeof chrome !== 'undefined' && !!chrome.storage?.local;
 }
 
+class StorageError extends Error {
+  cause?: unknown;
+  constructor(key: string, operation: string, cause?: unknown) {
+    super(`Storage ${operation} failed for key "${key}"`);
+    this.name = 'StorageError';
+    this.cause = cause;
+  }
+}
+
 async function get<T>(key: string, defaultValue: T): Promise<T> {
-  if (isChromeStorage()) {
+  if (!isChromeStorage()) {
+    console.error(`[storage] chrome.storage.local not available — cannot read "${key}"`);
+    return defaultValue;
+  }
+  try {
     const result = await chrome.storage.local.get(key);
     return result[key] ?? defaultValue;
+  } catch (err) {
+    console.error(`[storage] Failed to read "${key}":`, err);
+    return defaultValue;
   }
-  const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : defaultValue;
 }
 
 async function set<T>(key: string, value: T): Promise<void> {
-  if (isChromeStorage()) {
+  if (!isChromeStorage()) {
+    throw new StorageError(key, 'write', 'chrome.storage.local not available');
+  }
+  try {
     await chrome.storage.local.set({ [key]: value });
-  } else {
-    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    throw new StorageError(key, 'write', err);
   }
 }
 
@@ -83,6 +100,18 @@ export async function getPomodoroState(): Promise<PomodoroState | null> {
 
 export async function savePomodoroState(state: PomodoroState | null): Promise<void> {
   return set(KEYS.POMODORO_STATE, state);
+}
+
+// Clear all TaskTab data
+export async function clearAll(): Promise<void> {
+  if (!isChromeStorage()) {
+    throw new StorageError('*', 'clear', 'chrome.storage.local not available');
+  }
+  try {
+    await chrome.storage.local.clear();
+  } catch (err) {
+    throw new StorageError('*', 'clear', err);
+  }
 }
 
 // ID generator
