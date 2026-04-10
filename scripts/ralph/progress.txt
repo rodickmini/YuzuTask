@@ -1,125 +1,26 @@
-## Codebase Patterns
-- Vite `base: './'` is required for Chrome extensions so asset paths are relative (not absolute `/`)
-- `public/` directory contents are copied to `dist/` root by Vite, so Chrome extension paths should reference them without `public/` prefix (e.g., `icons/icon-128.png` not `public/icons/icon-128.png`)
-- Manifest.json is not auto-copied by Vite; use a `writeBundle` plugin hook to copy it
-- Background service worker entry is configured as a separate Rollup input with custom `entryFileNames` to output as `background.js` at dist root
-- `npm run build` runs `tsc && vite build` — typecheck first, then build
-- All chrome.storage.local access should go through `src/utils/storage.ts` — never call chrome.storage directly from UI components
-- Shared Framer Motion animation variants live in `src/components/ui/animations.ts` — use named states (initial/animate/exit) with the `variants` prop
-- `cardIn` variant includes both entrance (fade up) and exit (slide left) animations — use it for list items that need both
-- Use `staggerContainer` + `staggerItem` variants for page load animations; don't use manual delay values
-- Form components in modals should use `fadeInUp` (spring entrance from bottom) rather than `cardIn`
-- Tag selection logic should use `src/hooks/useTagSelection.ts` hook; tag selection UI should use `src/components/ui/TagSelector.tsx`
-- Design theme colors are defined as CSS custom properties in `src/styles/globals.css` under `:root` — Tailwind config references these via `var(--color-*)`, SVG and raw CSS should use the same variables
-
 # Ralph Progress Log
-Started: Fri Apr 10 15:29:46 CST 2026
+Started: Fri Apr 10 20:28:09 CST 2026
 ---
 
-## Fri Apr 10 15:53 - US-001
-- Fixed vite build config: moved `index.html` from `src/newtab/` to project root, added `base: './'` for relative asset paths, added copy-manifest plugin, added background entry point with custom output filename
-- Fixed background service worker icon paths from `public/icons/` to `icons/` (correct for extension context)
-- Files changed: `vite.config.ts`, `index.html` (moved from `src/newtab/index.html`), `src/background/index.ts`
-- **Learnings for future iterations:**
-  - Chrome extensions need relative paths (`./assets/...`) not absolute (`/assets/...`) in HTML
-  - Vite's `publicDir` copies to dist root, so references in code should strip the `public/` prefix
-  - The `copy-manifest` plugin uses `writeBundle` hook which runs after Vite writes output files
----
+## Codebase Patterns
+- Chrome extension project using Vite + React + TypeScript
+- State management via React Context (src/store/index.tsx)
+- No test framework configured; quality checks = `npx tsc --noEmit`
+- date-fns used for date formatting with locale support (zhCN, enUS, ja)
+- `initReactI18next` plugin auto-binds i18n to React — no I18nextProvider wrapper needed when using default instance
+- `noUnusedLocals` and `noUnusedParameters` are enabled in tsconfig — be careful not to import unused things
 
-## Fri Apr 10 16:05 - US-002
-- Verified extension loads in Chrome by thorough static analysis (no browser testing tools available)
-- Build passes (`npm run build` = `tsc && vite build`), typecheck passes (`tsc --noEmit`)
-- Verified dist output structure matches manifest.json expectations: `index.html` at root, `background.js` at root, `manifest.json` copied, icons in `icons/` dir, CSS/JS use relative `./assets/` paths
-- storage.ts has proper `isChromeStorage()` guard for non-Chrome environments
-- Background service worker code is correct: onInstalled sets up weekly alarm, alarm listener differentiates weekly-report and pomodoro-end, message listeners handle SET_WEEKLY_ALARM and CANCEL_ALARM
-- No code changes were needed — US-001's build fixes already produced a correct extension output
-- Files changed: `scripts/ralph/prd.json` (marked US-002 passes)
+## [2026-04-10] - US-001
+- Installed i18next and react-i18next
+- Created src/i18n/index.ts with i18n initialization (navigator.language detection, fallback to zh)
+- Created locale files: src/i18n/locales/zh.json, en.json, ja.json with ALL hardcoded strings from the entire codebase
+- Added `import '../i18n'` in src/newtab/main.tsx to initialize before React renders
+- Exported `useTranslation` from src/i18n/index.ts for convenience
+- Typecheck passes
+- Files changed: src/i18n/index.ts (new), src/i18n/locales/zh.json (new), src/i18n/locales/en.json (new), src/i18n/locales/ja.json (new), src/newtab/main.tsx (modified), package.json, package-lock.json
 - **Learnings for future iterations:**
-  - `chrome.alarms.create` max `periodInMinutes` is 10080 (= 7 days), the code uses exactly this for weekly recurrence
-  - `storage.ts` uses dual-mode (chrome.storage.local / localStorage) — US-003 will clean up the localStorage fallback
-  - SettingsPage.tsx has a direct `chrome.storage.local.clear()` call (line 121) that bypasses storage.ts — should be consistent with the storage abstraction
-  - Manual browser verification is still needed to fully confirm UI rendering
----
-
-## Fri Apr 10 16:30 - US-003
-- Removed localStorage fallback from storage.ts `get()` and `set()` — reads now return defaultValue with a console.error when chrome.storage is unavailable; writes throw a `StorageError`
-- Added `StorageError` class with descriptive messages for chrome.storage API failures
-- Added `clearAll()` export to storage.ts so all storage operations go through the abstraction layer
-- Fixed SettingsPage.tsx direct `chrome.storage.local.clear()` call to use `storage.clearAll()`
-- Files changed: `src/utils/storage.ts`, `src/components/settings/SettingsPage.tsx`
-- **Learnings for future iterations:**
-  - The background service worker (`src/background/index.ts`) can still use `chrome.storage.local` directly since it only runs in extension context
-  - TypeScript requires explicit `cause?: unknown` property declaration on custom Error subclasses (ES2022 `Error.cause` isn't in TS lib types by default)
-  - All UI components must use storage.ts, not chrome.storage directly — added this to Codebase Patterns
----
-
-## Thu Apr 10 17:00 - US-004
-- Refactored store/index.tsx: added `error: string | null` to AppState, exported `Action` discriminated union type, added `SET_ERROR` action
-- Wrapped initial load and refresh callbacks in try/catch with SET_ERROR dispatch
-- Memoized context value with `useMemo` to prevent unnecessary re-renders from new object references
-- Used `finally` block in initial load to ensure SET_LOADING(false) always fires
-- Files changed: `src/store/index.tsx`
-- **Learnings for future iterations:**
-  - The store already had a well-structured discriminated union for actions — main gaps were missing error state and unmemoized context value
-  - `useMemo` on the context value is a simple win for reducing unnecessary consumer re-renders
-  - Exporting the `Action` type allows components to import it for dispatch typing if needed
----
-
-## Thu Apr 10 17:30 - US-005
-- Extracted `useTagSelection` hook (`src/hooks/useTagSelection.ts`) to eliminate duplicated tag toggle logic between TaskForm and WorkLogForm
-- Extracted `TagSelector` component (`src/components/ui/TagSelector.tsx`) for shared tag selection UI
-- Created shared Framer Motion animation variants (`src/components/ui/animations.ts`): `cardIn`, `slideOutLeft`, `expandCollapse`, `fadeIn`
-- Updated TaskForm, WorkLogForm to use `useTagSelection` + `TagSelector` + `cardIn` animation
-- Updated TaskItem, WorkLogList, TaskFilter, TaskList to use shared animation variants
-- All components already used consistent `interface` prop typing — no changes needed there
-- Files changed: `src/hooks/useTagSelection.ts` (new), `src/components/ui/TagSelector.tsx` (new), `src/components/ui/animations.ts` (new), `src/components/task/TaskForm.tsx`, `src/components/task/TaskItem.tsx`, `src/components/task/TaskFilter.tsx`, `src/components/task/TaskList.tsx`, `src/components/worklog/WorkLogForm.tsx`, `src/components/worklog/WorkLogList.tsx`
-- **Learnings for future iterations:**
-  - Shared animation variants should use Framer Motion `Variants` type with named states (`initial`, `animate`, `exit`) for use with the `variants` prop
-  - When merging multiple variant objects spread them: `variants={{ ...cardIn, ...slideOutLeft }}` — this works because each defines different state keys
-  - The `src/hooks/` directory didn't exist yet — created it as the home for custom hooks
-  - Tag toggle logic is identical across forms — the `useTagSelection` hook with `initial` parameter handles both empty and pre-populated cases
----
-
-## Thu Apr 10 17:50 - US-006
-- Centralized design theme colors as CSS custom properties in `globals.css` `:root` block — single source of truth for all colors
-- Updated `tailwind.config.js` to reference CSS variables (`var(--color-primary)`, etc.) instead of hardcoded hex values
-- Updated `globals.css` body, scrollbar, and selection styles to use CSS variables
-- Fixed hardcoded SVG stroke colors in PomodoroTimer.tsx to use CSS variables
-- Verified all components already use consistent Tailwind theme classes (`bg-white` for cards is correct per FEATURES.md spec)
-- Verified shadows (`shadow-soft`, `shadow-card`, `shadow-soft-lg`) and borders (`border-warm-dark`) are consistent across all components
-- Files changed: `src/styles/globals.css`, `tailwind.config.js`, `src/components/pomodoro/PomodoroTimer.tsx`
-- **Learnings for future iterations:**
-  - Tailwind CSS classes can't be used on SVG `stroke` attributes — use CSS custom properties instead
-  - The codebase was already well-aligned with the FEATURES.md design spec; main gap was hardcoded hex values in SVG elements
-  - Manual browser verification is needed to visually confirm the theme renders correctly
----
-
-## Thu Apr 10 18:30 - US-007
-- Enhanced animations.ts: consolidated exit animation into `cardIn` variant, added `staggerContainer`/`staggerItem` for page load, made `fadeInUp` use spring physics
-- Updated TaskItem: animated done-state opacity transition with `transition-opacity duration-300`, animated title with motion.span for smooth strikethrough fade
-- Updated TaskForm/WorkLogForm: switched from `cardIn` to `fadeInUp` for more pronounced bottom entrance in modals
-- Updated NewTab: replaced manual delay-based stagger with `staggerContainer`/`staggerItem` variants for all views (home, worklog, weekly, settings)
-- Updated WorkLogList: simplified to use consolidated `cardIn` instead of spreading `cardIn` + `slideOutLeft`
-- Verified existing animations already matched spec: greeting emoji sway, modal frosted glass + spring, button hover/tap, toast slide-in
-- Files changed: `src/components/ui/animations.ts`, `src/components/task/TaskItem.tsx`, `src/components/task/TaskForm.tsx`, `src/components/worklog/WorkLogList.tsx`, `src/components/worklog/WorkLogForm.tsx`, `src/newtab/NewTab.tsx`
-- **Learnings for future iterations:**
-  - `cardIn` now bundles entrance + exit — list items only need one variant import
-  - `staggerContainer`/`staggerItem` is cleaner than manual delay props for coordinated entrance animations
-  - Forms in modals benefit from `fadeInUp` (spring) over `cardIn` (tween) for a more playful feel
-  - Manual browser verification is needed to confirm all animations feel right in practice
----
-
-## Thu Apr 10 19:00 - US-008
-- Added `chrome.notifications.onClicked` handler to open new tab when user clicks a notification
-- Added input validation in `onInstalled` handler: guards against missing `weeklyReport` config and invalid field types
-- Added input validation in `SET_WEEKLY_ALARM` message handler: validates config shape before setting alarm
-- Added input validation in `CANCEL_ALARM` message handler: validates alarm name, returns `wasCleared` status
-- Changed alarm listener from two `if` blocks to `if/else if` for cleaner differentiation
-- Added time format validation in `setupWeeklyAlarm`: checks HH:MM format and valid ranges (0-23 hours, 0-59 minutes)
-- Files changed: `src/background/index.ts`
-- **Learnings for future iterations:**
-  - TypeScript flags unused callback parameters with TS6133 — prefix with underscore to suppress
-  - `chrome.alarms.clear()` returns a Promise<boolean> indicating whether the alarm existed
-  - `chrome.notifications.onClicked` opens a new tab via `chrome.tabs.create({ url: chrome.runtime.getURL('index.html') })`
-  - Service worker runs in extension context — direct `chrome.*` API calls are fine (no need for storage.ts abstraction)
+  - The locale JSON files contain ALL strings from the entire codebase, organized by component/area (nav, greeting, task, worklog, pomodoro, weekly, report, settings, date, tag, notification, encouragements)
+  - Japanese encouragement messages use natural Japanese phrasing, not just translations
+  - The `encouragements` array is a top-level key since it's used as an array in components
+  - `useTranslation` is re-exported from `src/i18n/index.ts` so components can import from a single module
 ---

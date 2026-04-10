@@ -1,138 +1,150 @@
 {
   "project": "YuzuTask",
-  "branchName": "ralph/fix-and-optimize",
-  "description": "Fix Chrome extension loading failure and optimize/refactor the codebase",
+  "branchName": "ralph/i18n",
+  "description": "Add multi-language (i18n) support for Chinese, English, and Japanese",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Fix vite build config for Chrome extension",
-      "description": "As a developer, I need the build output to match the manifest.json paths so the extension loads correctly in Chrome.",
+      "title": "Set up i18n infrastructure with react-i18next",
+      "description": "As a developer, I need a lightweight i18n solution set up so all components can use translated strings.",
       "acceptanceCriteria": [
-        "vite.config.ts outputs index.html to dist/index.html (not dist/src/newtab/index.html)",
-        "manifest.json is copied to dist/ during build",
-        "manifest.json newtab path points to the correct HTML file location",
-        "background.js is output to dist/background.js at root level",
-        "CSS and JS assets use correct relative paths from the HTML file",
-        "`npm run build` succeeds with no errors",
+        "Install i18next and react-i18next",
+        "Create src/i18n/index.ts with i18n initialization",
+        "Create src/i18n/locales/zh.json with all Chinese strings",
+        "Create src/i18n/locales/en.json with all English strings",
+        "Create src/i18n/locales/ja.json with all Japanese strings",
+        "Language detection from browser locale (navigator.language), fallback to 'zh'",
+        "Wrap AppProvider with I18nextProvider in src/newtab/main.tsx",
+        "Export useTranslation hook for components to use",
         "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Currently index.html ends up at dist/src/newtab/index.html but manifest references index.html at root. manifest.json also not copied to dist."
+      "notes": "Do NOT use i18next-browser-languagedetector plugin to keep bundle small. Simple navigator.language check is enough for a Chrome extension. The locale JSON files should contain ALL hardcoded Chinese/English text from the entire codebase."
     },
     {
       "id": "US-002",
-      "title": "Verify extension loads in Chrome",
-      "description": "As a user, I need the extension to load without errors when added to Chrome via chrome://extensions.",
+      "title": "Internationalize types, utils, and constants",
+      "description": "As a developer, I need hardcoded strings in types/index.ts, utils/report.ts, utils/date.ts, and utils/storage.ts to use i18n.",
       "acceptanceCriteria": [
-        "Extension loads in chrome://extensions without errors",
-        "Opening a new tab shows the YuzuTask UI",
-        "chrome.storage.local works (no undefined errors)",
-        "Background service worker registers without errors",
-        "DevTools console shows no critical errors",
+        "src/types/index.ts: DEFAULT_SETTINGS uses i18n-safe values, ENCOURAGEMENTS array moved to locale files, PRIORITY_CONFIG labels moved to locale files",
+        "src/utils/report.ts: all Chinese template strings use t() function or accept translated strings",
+        "src/utils/date.ts: date formatting uses locale-aware functions from date-fns (zhCN, enUS, ja locales)",
+        "src/utils/storage.ts: Chinese error messages moved to locale files",
+        "src/background/index.ts: notification title and message use locale strings",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "After US-001 fixes the build config, verify the full extension lifecycle works. Check storage.ts has proper fallback for non-Chrome environments."
+      "passes": false,
+      "notes": "Background service worker cannot use React hooks. For background.ts, import i18next directly and call t() from the i18n instance. Initialize i18n in background.ts separately with the same config."
     },
     {
       "id": "US-003",
-      "title": "Fix storage layer and remove localStorage fallback in production",
-      "description": "As a developer, the storage utility should cleanly use chrome.storage.local in the extension context without fragile fallbacks.",
+      "title": "Internationalize layout components (Header, BottomBar, NewTab)",
+      "description": "As a user, the greeting messages, navigation labels, and loading text should display in my language.",
       "acceptanceCriteria": [
-        "storage.ts uses chrome.storage.local as primary storage",
-        "Remove or guard localStorage fallback so it doesn't silently mask bugs in the extension",
-        "Add proper error handling for chrome.storage API failures",
-        "All existing store operations (tasks, worklogs, settings, sessions) still work",
+        "src/components/layout/Header.tsx: all greeting messages moved to locale files, emoji preserved",
+        "src/components/layout/BottomBar.tsx: navigation labels from locale files",
+        "src/newtab/NewTab.tsx: loading text if any from locale files",
+        "All three components use useTranslation hook",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "The localStorage fallback can hide real issues. In a Chrome extension context, chrome.storage.local should always be available."
+      "passes": false,
+      "notes": "Keep the greeting emoji and time formatting logic in the component, only externalize the text strings."
     },
     {
       "id": "US-004",
-      "title": "Refactor store to use cleaner patterns",
-      "description": "As a developer, the store should be well-structured with proper TypeScript types and clean reducer logic.",
+      "title": "Internationalize task components (TaskList, TaskItem, TaskForm, TaskFilter)",
+      "description": "As a user, all task management UI text should be in my language.",
       "acceptanceCriteria": [
-        "Reducer actions are strongly typed with discriminated unions",
-        "State type is explicit and complete",
-        "Context provider properly handles loading and error states",
-        "No unnecessary re-renders from broad context updates",
+        "src/components/task/TaskList.tsx: button labels, empty state text, modal titles from locale files",
+        "src/components/task/TaskItem.tsx: any UI labels from locale files",
+        "src/components/task/TaskForm.tsx: form labels, placeholders, button text, priority labels from locale files",
+        "src/components/task/TaskFilter.tsx: filter labels from locale files",
+        "All components use useTranslation hook",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Review store/index.tsx for type safety and patterns."
+      "passes": false,
+      "notes": "Default tags like #工作 #开发 should also be in locale files so they display in the user's language."
     },
     {
       "id": "US-005",
-      "title": "Refactor components for consistency and reusability",
-      "description": "As a developer, components should follow consistent patterns for props, event handling, and styling.",
+      "title": "Internationalize pomodoro timer",
+      "description": "As a user, the pomodoro timer UI text and encouragement messages should be in my language.",
       "acceptanceCriteria": [
-        "All components use consistent prop typing patterns",
-        "Shared UI components (Modal, Button, Input, Toast, Tag) are properly generic and reusable",
-        "No duplicated logic across task/worklog forms",
-        "Framer Motion animations follow a consistent pattern",
+        "src/components/pomodoro/PomodoroTimer.tsx: all UI labels from locale files",
+        "Encouragement messages loaded from locale files (zh.json, en.json, ja.json each have their own set)",
+        "Status labels from locale files",
+        "Task selector placeholder text from locale files",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Focus on UI components in src/components/ui/ and form components."
+      "passes": false,
+      "notes": "Japanese encouragement messages should be authentic Japanese phrases, not just translations."
     },
     {
       "id": "US-006",
-      "title": "Fix and enhance global styles for the design theme",
-      "description": "As a user, the visual design should match the Japanese fresh/minimal aesthetic defined in FEATURES.md.",
+      "title": "Internationalize work log components (WorkLogList, WorkLogForm, CalendarView)",
+      "description": "As a user, work log UI text should be in my language.",
       "acceptanceCriteria": [
-        "Color scheme matches FEATURES.md: #FFF8F0 background, #7EB6C9 primary, #F5A7A7 accent, #A8D5BA and #FFD4A5 secondary",
-        "Card shadows are soft and consistent across all card components",
-        "Typography uses warm gray (#4A4A4A) consistently",
-        "Border color (#F0E6DE) used consistently across all bordered elements",
-        "Tailwind config defines all custom colors as theme extensions",
-        "Typecheck passes",
-        "Verify in browser"
+        "src/components/worklog/WorkLogList.tsx: button labels, empty state, date group headers, total hours label from locale files",
+        "src/components/worklog/WorkLogForm.tsx: form labels, placeholders, button text from locale files",
+        "src/components/worklog/CalendarView.tsx: any UI labels from locale files",
+        "All components use useTranslation hook",
+        "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Ensure tailwind.config.js has all the custom colors from the PRD palette."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-007",
-      "title": "Add missing animations and interaction polish",
-      "description": "As a user, interactions should feel lively with the animations described in FEATURES.md.",
+      "title": "Internationalize weekly report component",
+      "description": "As a user, the weekly report UI and generated report text should be in my language.",
       "acceptanceCriteria": [
-        "Task completion has elastic checkbox animation, done items have strikethrough + fade",
-        "Task add: card fades in from bottom",
-        "Task delete: card slides left and fades out",
-        "Page load: modules fade in with staggered delay",
-        "Greeting emoji has gentle sway animation",
-        "Modal has frosted glass backdrop + elastic scale entrance",
-        "Buttons have hover scale-up and tap scale-down feedback",
-        "Toast slides in from right and auto-dismisses",
-        "Typecheck passes",
-        "Verify in browser"
+        "src/components/weekly/WeeklyReport.tsx: all UI labels, stats labels, button text from locale files",
+        "Report template default content uses locale-aware strings",
+        "Generated report text from locale files",
+        "Settings modal labels from locale files",
+        "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "FEATURES.md has a detailed animation table. Cross-reference with existing framer-motion usage."
+      "passes": false,
+      "notes": "The weekly report template is user-customizable, so only the DEFAULT template should be locale-aware."
     },
     {
       "id": "US-008",
-      "title": "Improve background service worker reliability",
-      "description": "As a developer, the background service worker should reliably handle alarms and notifications.",
+      "title": "Internationalize settings page and shared UI components",
+      "description": "As a user, settings page labels and shared UI component text should be in my language.",
       "acceptanceCriteria": [
-        "onInstalled handler sets up the weekly report alarm correctly",
-        "Alarm listener properly differentiates between weekly-report and pomodoro-end alarms",
-        "Notification click handler opens/focuses the new tab",
-        "Message listeners for SET_WEEKLY_ALARM and CANCEL_ALARM work correctly",
-        "Service worker handles edge cases (alarm already set, missing settings)",
+        "src/components/settings/SettingsPage.tsx: all section titles, labels, button text, confirmation dialogs from locale files",
+        "src/components/ui/Modal.tsx: close button text from locale",
+        "src/components/ui/Toast.tsx: any default text from locale",
+        "src/components/ui/Tag.tsx and TagSelector.tsx: any labels from locale",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Review src/background/index.ts for robustness."
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add language switcher UI",
+      "description": "As a user, I want a language selector in the settings page so I can switch between Chinese, English, and Japanese.",
+      "acceptanceCriteria": [
+        "Add a language selector in SettingsPage with options: 简体中文, English, 日本語",
+        "Selected language is saved to chrome.storage.local and persisted across sessions",
+        "Language change takes effect immediately without page reload",
+        "date-fns locale also switches accordingly (zhCN/enUS/ja)",
+        "Language selector appears at the top of the settings page",
+        "Typecheck passes",
+        "Verify in browser"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Store the language preference as 'yuzutask_language' in chrome.storage.local. On init, check this key first, then fall back to navigator.language."
     }
   ]
 }
