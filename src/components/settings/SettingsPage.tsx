@@ -133,6 +133,26 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Task position */}
+      <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
+        <h4 className="text-sm font-medium text-text-main">{t('settings.taskPositionSection')}</h4>
+        <div className="flex gap-2">
+          {(['top', 'bottom'] as const).map(pos => (
+            <button
+              key={pos}
+              onClick={() => saveSettings({ newTaskPosition: pos })}
+              className={`px-4 py-2 rounded-xl text-sm transition-colors ${
+                state.settings.newTaskPosition === pos
+                  ? 'bg-primary text-white'
+                  : 'bg-warm text-text-main hover:bg-warm-dark'
+              }`}
+            >
+              {t(`settings.newTask${pos === 'top' ? 'Top' : 'Bottom'}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Tags */}
       <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
         <h4 className="text-sm font-medium text-text-main">{t('settings.tagsSection')}</h4>

@@ -50,8 +50,16 @@ export default function TaskList() {
   const handleSave = async (task: Task) => {
     const isNew = !state.tasks.find(t => t.id === task.id);
     if (isNew) {
-      dispatch({ type: 'ADD_TASK', payload: task });
-      const updated = [...state.tasks, task];
+      // Determine order based on user preference
+      const adjustedTask = { ...task };
+      if (state.settings.newTaskPosition === 'top') {
+        const minOrder = state.tasks.length > 0
+          ? Math.min(...state.tasks.map(t => t.order))
+          : Date.now();
+        adjustedTask.order = minOrder - 1;
+      }
+      dispatch({ type: 'ADD_TASK', payload: adjustedTask });
+      const updated = [...state.tasks, adjustedTask];
       await storage.saveTasks(updated);
       showToast(t('task.added'));
     } else {

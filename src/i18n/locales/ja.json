@@ -82,7 +82,9 @@
     "emptyState": "最初のポモドーロを始めましょう~",
     "focusDone": "集中終了！休憩しましょう~ ☕",
     "breakDone": "休憩終了、頑張りましょう~ 💪",
-    "focusComplete": "集中完了："
+    "focusComplete": "集中完了：",
+    "focusBreath": "深呼吸...集中準備はいい？",
+    "relaxBreath": "リラックス...休憩時間だよ"
   },
   "encouragements": [
     "集中できててえらい！",
@@ -144,6 +146,9 @@
   "settings": {
     "title": "設定",
     "pomodoroSection": "🍅 ポモドーロ",
+    "taskPositionSection": "📋 新規タスク位置",
+    "newTaskTop": "先頭",
+    "newTaskBottom": "末尾",
     "tagsSection": "🏷️ カスタムタグ",
     "dataSection": "💾 データ管理",
     "focusDuration": "集中時間（分）",

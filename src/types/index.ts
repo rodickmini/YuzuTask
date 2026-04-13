@@ -51,6 +51,7 @@ export interface UserSettings {
   longBreakInterval: number;
   weeklyReport: WeeklyReportConfig;
   customTags: string[];
+  newTaskPosition: 'top' | 'bottom';
 }
 
 export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings';
@@ -81,6 +82,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
     dateRange: 'mon-sun',
   },
   customTags: ['tag.work', 'tag.dev', 'tag.meeting', 'tag.doc', 'tag.comm', 'tag.learn', 'tag.life'],
+  newTaskPosition: 'top',
 };
 
 export const PRIORITY_CONFIG = {

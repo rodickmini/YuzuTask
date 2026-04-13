@@ -33,7 +33,7 @@ function MainContent() {
       <Header />
 
       <motion.main
-        className="flex-1 min-h-0 px-8 py-2"
+        className="flex-1 min-h-0 px-4 sm:px-6 lg:px-8 py-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -43,25 +43,27 @@ function MainContent() {
             variants={staggerContainer}
             initial="initial"
             animate="animate"
-            className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 h-full"
+            className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-3 sm:gap-4 h-full"
           >
             {/* Left: Pomodoro + Cat Mascot */}
             <motion.div
               variants={staggerItem}
-              className="flex flex-col gap-3"
+              className="flex md:flex-col gap-3 overflow-auto md:overflow-visible"
             >
-              <div className="bg-white rounded-3xl border border-warm-dark/50 p-5">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 p-3 sm:p-5 md:shrink-0">
                 <PomodoroTimer />
               </div>
 
-              {/* Pet Mascot */}
-              <PetMascot />
+              {/* Pet Mascot - hidden on small screens in horizontal mode */}
+              <div className="hidden md:block">
+                <PetMascot />
+              </div>
             </motion.div>
 
             {/* Right: Tasks */}
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
+              className="bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 p-3 sm:p-5 min-h-0 md:max-h-full overflow-auto"
             >
               <TaskList />
             </motion.div>

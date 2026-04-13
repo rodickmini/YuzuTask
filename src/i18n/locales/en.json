@@ -82,7 +82,9 @@
     "emptyState": "Start your first pomodoro~",
     "focusDone": "Focus done! Take a break~ ☕",
     "breakDone": "Break over, keep going~ 💪",
-    "focusComplete": "Focus completed:"
+    "focusComplete": "Focus completed:",
+    "focusBreath": "Breathe deeply... Ready to focus?",
+    "relaxBreath": "Relax... It's break time"
   },
   "encouragements": [
     "You're doing great!",
@@ -144,6 +146,9 @@
   "settings": {
     "title": "Settings",
     "pomodoroSection": "🍅 Pomodoro",
+    "taskPositionSection": "📋 New Task Position",
+    "newTaskTop": "Top",
+    "newTaskBottom": "Bottom",
     "tagsSection": "🏷️ Custom Tags",
     "dataSection": "💾 Data Management",
     "focusDuration": "Focus duration (min)",

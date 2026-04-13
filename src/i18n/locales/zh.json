@@ -82,7 +82,9 @@
     "emptyState": "开始你的第一个番茄吧~",
     "focusDone": "专注结束！休息一下吧~ ☕",
     "breakDone": "休息结束，继续加油~ 💪",
-    "focusComplete": "专注完成："
+    "focusComplete": "专注完成：",
+    "focusBreath": "深呼吸...准备好开始专注了吗？",
+    "relaxBreath": "放轻松...休息时间到了"
   },
   "encouragements": [
     "专注中，你真棒~",
@@ -144,6 +146,9 @@
   "settings": {
     "title": "设置",
     "pomodoroSection": "🍅 番茄钟",
+    "taskPositionSection": "📋 新任务位置",
+    "newTaskTop": "置顶",
+    "newTaskBottom": "置底",
     "tagsSection": "🏷️ 自定义标签",
     "dataSection": "💾 数据管理",
     "focusDuration": "专注时长(分钟)",

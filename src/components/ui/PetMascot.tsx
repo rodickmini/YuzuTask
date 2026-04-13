@@ -47,7 +47,7 @@ export default function PetMascot() {
           transition={{ duration: 0.3 }}
           className="flex flex-col items-center gap-2"
         >
-          <div className="w-full h-[180px] flex items-center justify-center">
+          <div className="w-full h-[140px] sm:h-[180px] flex items-center justify-center">
             <Lottie
               animationData={pet.data}
               loop
