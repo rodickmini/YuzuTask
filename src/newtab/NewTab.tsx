@@ -10,6 +10,7 @@ import WeeklyReport from '../components/weekly/WeeklyReport';
 import FootprintPage from '../components/footprint/FootprintPage';
 import SettingsPage from '../components/settings/SettingsPage';
 import Toast from '../components/ui/Toast';
+import PetMascot from '../components/ui/PetMascot';
 import { staggerContainer, staggerItem } from '../components/ui/animations';
 
 function MainContent() {
@@ -44,12 +45,17 @@ function MainContent() {
             animate="animate"
             className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 h-full"
           >
-            {/* Left: Pomodoro */}
+            {/* Left: Pomodoro + Cat Mascot */}
             <motion.div
               variants={staggerItem}
-              className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-fit"
+              className="flex flex-col gap-3"
             >
-              <PomodoroTimer />
+              <div className="bg-white rounded-3xl border border-warm-dark/50 p-5">
+                <PomodoroTimer />
+              </div>
+
+              {/* Pet Mascot */}
+              <PetMascot />
             </motion.div>
 
             {/* Right: Tasks */}

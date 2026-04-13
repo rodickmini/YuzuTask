@@ -3,6 +3,10 @@
     "cancel": "キャンセル",
     "save": "保存"
   },
+  "brand": {
+    "name": "YuzuTask",
+    "title": "YuzuTask - 新しいタブ"
+  },
   "nav": {
     "home": "タスク",
     "worklog": "記録",

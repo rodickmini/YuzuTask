@@ -32,7 +32,7 @@ function PomodoroIndicator() {
 }
 
 export default function Header() {
-  useTranslation();
+  const { t, i18n } = useTranslation();
   const [time, setTime] = useState(new Date());
   const [greeting, setGreeting] = useState(getGreeting());
 
@@ -45,6 +45,10 @@ export default function Header() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    document.title = t('brand.title');
+  }, [i18n.language, t]);
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -53,6 +57,8 @@ export default function Header() {
       className="flex items-center justify-between px-8 pt-6 pb-2"
     >
       <div className="flex items-center gap-3">
+        <span className="text-lg font-semibold text-primary tracking-wide">{t('brand.name')}</span>
+        <span className="text-warm-dark">·</span>
         <motion.span
           className="text-2xl"
           animate={{ rotate: [0, 10, -10, 0] }}

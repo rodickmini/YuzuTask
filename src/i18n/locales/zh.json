@@ -3,6 +3,10 @@
     "cancel": "取消",
     "save": "保存"
   },
+  "brand": {
+    "name": "柚子任务",
+    "title": "柚子任务 - 新标签页"
+  },
   "nav": {
     "home": "待办",
     "worklog": "记录",

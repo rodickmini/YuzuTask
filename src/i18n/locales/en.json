@@ -3,6 +3,10 @@
     "cancel": "Cancel",
     "save": "Save"
   },
+  "brand": {
+    "name": "YuzuTask",
+    "title": "YuzuTask - New Tab"
+  },
   "nav": {
     "home": "Todos",
     "worklog": "Records",
