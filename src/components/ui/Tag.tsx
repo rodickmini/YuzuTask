@@ -9,7 +9,7 @@ interface TagProps {
   color?: string;
 }
 
-const TAG_COLORS: Record<string, string> = {
+export const TAG_COLORS: Record<string, string> = {
   'tag.work': 'bg-primary-light/40 text-primary-dark',
   'tag.dev': 'bg-mint-light/40 text-emerald-700',
   'tag.meeting': 'bg-cream-light/40 text-amber-700',

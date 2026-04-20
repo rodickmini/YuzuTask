@@ -21,6 +21,8 @@ interface AppState {
   isLoading: boolean;
   error: string | null;
   petState: PetState;
+  selectedTag: string | null;
+  isSidebarVisible: boolean;
 }
 
 export type Action =
@@ -38,7 +40,9 @@ export type Action =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_PET_STATE'; payload: PetState }
   | { type: 'ADD_FOOD'; payload: number }
-  | { type: 'FEED_PET' };
+  | { type: 'FEED_PET' }
+  | { type: 'SET_SELECTED_TAG'; payload: string | null }
+  | { type: 'TOGGLE_SIDEBAR' };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -81,6 +85,10 @@ function reducer(state: AppState, action: Action): AppState {
           lastFeedAt: new Date().toISOString(),
         },
       };
+    case 'SET_SELECTED_TAG':
+      return { ...state, selectedTag: action.payload };
+    case 'TOGGLE_SIDEBAR':
+      return { ...state, isSidebarVisible: !state.isSidebarVisible };
     default:
       return state;
   }
@@ -95,6 +103,8 @@ const initialState: AppState = {
   isLoading: true,
   error: null,
   petState: DEFAULT_PET_STATE,
+  selectedTag: null,
+  isSidebarVisible: true,
 };
 
 interface AppContextType {

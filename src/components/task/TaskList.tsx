@@ -14,13 +14,12 @@ import { showToast } from '../ui/Toast';
 import { toISODateString } from '../../utils/date';
 import { useTranslation } from '../../i18n';
 
-export default function TaskList() {
+export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?: React.ReactNode }) {
   const { t } = useTranslation();
   const { state, dispatch } = useAppState();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [statusFilter, setStatusFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const allTags = useMemo(() => {
     const tagSet = new Set(state.settings.customTags);
@@ -32,7 +31,7 @@ export default function TaskList() {
     return state.tasks
       .filter(t => {
         if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-        if (selectedTags.length > 0 && !selectedTags.some(tag => t.tags.includes(tag))) return false;
+        if (state.selectedTag && !t.tags.includes(state.selectedTag)) return false;
         return true;
       })
       .sort((a, b) => {
@@ -41,7 +40,7 @@ export default function TaskList() {
         if (a.status !== 'done' && b.status === 'done') return -1;
         return a.order - b.order;
       });
-  }, [state.tasks, statusFilter, selectedTags]);
+  }, [state.tasks, statusFilter, state.selectedTag]);
 
   const todayTasks = filteredTasks.filter(t =>
     t.status !== 'done' && (!t.dueDate || t.dueDate >= toISODateString(new Date()))
@@ -103,7 +102,8 @@ export default function TaskList() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-          <span className="text-base">📋</span> {t('task.todayTodo')}
+          {sidebarToggleButton}
+          {t('task.todayTodo')}
           <span className="text-xs text-text-sub font-normal">({todayTasks.length})</span>
         </h3>
         <motion.button
@@ -117,11 +117,6 @@ export default function TaskList() {
       </div>
 
       <TaskFilter
-        tags={allTags}
-        selectedTags={selectedTags}
-        onTagToggle={tag => setSelectedTags(prev =>
-          prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-        )}
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
       />

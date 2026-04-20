@@ -109,7 +109,7 @@ export default function PetMascot() {
   const displayBubble = bubbleOverride ?? getBubbleText(petState.satiety, pet.bubble);
 
   return (
-    <div className="bg-white rounded-3xl border border-warm-dark/50 p-4 relative">
+    <div className="bg-white rounded-3xl border border-warm-dark/50 p-3 relative">
       {/* Shuffle button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -136,7 +136,7 @@ export default function PetMascot() {
         >
           {/* Pet animation area */}
           <motion.div
-            className="w-full h-[140px] sm:h-[180px] flex items-center justify-center cursor-pointer relative"
+            className="w-full h-[120px] flex items-center justify-center cursor-pointer relative"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}

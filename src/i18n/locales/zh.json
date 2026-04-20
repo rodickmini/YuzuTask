@@ -181,6 +181,12 @@
     "learn": "学习",
     "life": "生活"
   },
+  "sidebar": {
+    "allTasks": "全部任务",
+    "tags": "标签",
+    "hideSidebar": "隐藏侧栏",
+    "showSidebar": "显示侧栏"
+  },
   "footprint": {
     "title": "活动足迹",
     "activeDays": "活跃天数",

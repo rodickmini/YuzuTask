@@ -181,6 +181,12 @@
     "learn": "学習",
     "life": "生活"
   },
+  "sidebar": {
+    "allTasks": "すべてのタスク",
+    "tags": "タグ",
+    "hideSidebar": "サイドバーを隠す",
+    "showSidebar": "サイドバーを表示"
+  },
   "footprint": {
     "title": "活動履歴",
     "activeDays": "アクティブ日数",

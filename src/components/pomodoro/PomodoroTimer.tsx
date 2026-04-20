@@ -29,13 +29,13 @@ export default function PomodoroTimer() {
     }
   }, [isRunning, isPaused, t]);
 
-  const radius = 80;
+  const radius = 70;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress * circumference);
 
   return (
     <div className="flex flex-col items-center">
-      <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5 mb-4">
+      <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5 mb-2">
         <span className="text-base">🍅</span>
         {isBreak ? t('pomodoro.breakTitle') : t('pomodoro.title')}
       </h3>
@@ -46,7 +46,7 @@ export default function PomodoroTimer() {
           <motion.div
             key="task-selector"
             initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-            animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: 8 }}
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="relative w-full overflow-hidden"
@@ -67,16 +67,16 @@ export default function PomodoroTimer() {
       </AnimatePresence>
 
       {/* Timer circle */}
-      <div className="relative w-48 h-48 mb-4">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 180 180">
+      <div className="relative w-40 h-40 mb-2">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
           <circle
-            cx="90" cy="90" r={radius}
+            cx="80" cy="80" r={radius}
             fill="none"
             stroke="var(--color-warm-dark)"
             strokeWidth="8"
           />
           <motion.circle
-            cx="90" cy="90" r={radius}
+            cx="80" cy="80" r={radius}
             fill="none"
             stroke={isBreak ? 'var(--color-mint)' : 'var(--color-primary)'}
             strokeWidth="8"
@@ -92,7 +92,7 @@ export default function PomodoroTimer() {
             initial={{ opacity: 0.5, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="text-4xl font-light text-text-main tabular-nums tracking-wider"
+            className="text-3xl font-light text-text-main tabular-nums tracking-wider"
           >
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </motion.span>
@@ -110,7 +110,7 @@ export default function PomodoroTimer() {
       </div>
 
       {/* Completed count */}
-      <div className="flex items-center gap-1 mb-4">
+      <div className="flex items-center gap-1 mb-2">
         {Array.from({ length: Math.min(completedCount, 8) }).map((_, i) => (
           <motion.span
             key={i}
@@ -136,7 +136,7 @@ export default function PomodoroTimer() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.3 }}
-            className="text-xs text-text-sub mb-4 text-center"
+            className="text-xs text-text-sub mb-2 text-center"
           >
             {t('pomodoro.emptyState')}
           </motion.p>

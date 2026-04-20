@@ -181,6 +181,12 @@
     "learn": "Learning",
     "life": "Life"
   },
+  "sidebar": {
+    "allTasks": "All Tasks",
+    "tags": "Tags",
+    "hideSidebar": "Hide sidebar",
+    "showSidebar": "Show sidebar"
+  },
   "footprint": {
     "title": "Activity Footprint",
     "activeDays": "Active Days",

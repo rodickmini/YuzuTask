@@ -1,8 +1,11 @@
-import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import { AppProvider, useAppState } from '../store';
 import { PomodoroProvider } from '../hooks/PomodoroContext';
 import Header from '../components/layout/Header';
 import BottomBar from '../components/layout/BottomBar';
+import TagSidebar from '../components/layout/TagSidebar';
 import TaskList from '../components/task/TaskList';
 import PomodoroTimer from '../components/pomodoro/PomodoroTimer';
 import WorkLogList from '../components/worklog/WorkLogList';
@@ -14,7 +17,18 @@ import PetMascot from '../components/ui/PetMascot';
 import { staggerContainer, staggerItem } from '../components/ui/animations';
 
 function MainContent() {
-  const { state } = useAppState();
+  const { state, dispatch } = useAppState();
+
+  // Esc key to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        dispatch({ type: 'TOGGLE_SIDEBAR' });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dispatch]);
 
   if (state.isLoading) {
     return (
@@ -28,7 +42,22 @@ function MainContent() {
     );
   }
 
+  const showSidebar = state.isSidebarVisible && state.currentView === 'home';
+
+  const ToggleButton = () => (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+      className="flex items-center justify-center w-7 h-7 rounded-lg text-text-sub/50 hover:bg-black/[0.05] hover:text-text-sub transition-colors"
+      title={state.isSidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
+    >
+      {state.isSidebarVisible ? <PanelLeftClose size={16} /> : <PanelLeft size={16} />}
+    </motion.button>
+  );
+
   return (
+    <LayoutGroup>
     <div className="h-full flex flex-col">
       <Header />
 
@@ -43,29 +72,48 @@ function MainContent() {
             variants={staggerContainer}
             initial="initial"
             animate="animate"
-            className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] gap-3 sm:gap-4 h-full"
+            className="h-full flex gap-3 sm:gap-4"
           >
-            {/* Left: Pomodoro + Cat Mascot */}
+            {/* Left + Center: Fused panel (Sidebar + TaskList) */}
+            <div className="flex-1 min-w-0 bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 flex overflow-hidden relative">
+              {/* Sidebar */}
+              <AnimatePresence initial={false}>
+                {showSidebar && (
+                  <motion.div
+                    key="sidebar"
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 200, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="hidden md:block shrink-0 overflow-hidden"
+                  >
+                    <div className="w-[200px] lg:w-[220px] h-full border-r border-warm-dark/30">
+                      <TagSidebar />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Task List */}
+              <div className="flex-1 min-w-0 p-3 sm:p-5 overflow-auto">
+                <TaskList
+                  sidebarToggleButton={<ToggleButton />}
+                />
+              </div>
+            </div>
+
+            {/* Right: Pomodoro + Pet */}
             <motion.div
               variants={staggerItem}
-              className="flex md:flex-col gap-3 overflow-auto md:overflow-visible"
+              className="hidden lg:flex lg:flex-col gap-3 w-[240px] shrink-0"
             >
-              <div className="bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 p-3 sm:p-5 md:shrink-0">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 p-3 sm:p-4 md:shrink-0">
                 <PomodoroTimer />
               </div>
 
-              {/* Pet Mascot - hidden on small screens in horizontal mode */}
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <PetMascot />
               </div>
-            </motion.div>
-
-            {/* Right: Tasks */}
-            <motion.div
-              variants={staggerItem}
-              className="bg-white rounded-2xl sm:rounded-3xl border border-warm-dark/50 p-3 sm:p-5 min-h-0 md:max-h-full overflow-auto"
-            >
-              <TaskList />
             </motion.div>
           </motion.div>
         )}
@@ -117,6 +165,7 @@ function MainContent() {
 
       <BottomBar />
     </div>
+    </LayoutGroup>
   );
 }
 
