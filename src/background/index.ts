@@ -20,7 +20,7 @@ i18n.init({
     ja: { translation: ja },
   },
   lng: detectLanguage(),
-  fallbackLng: 'zh',
+  fallbackLng: 'en',
   interpolation: { escapeValue: false },
 });
 
@@ -64,6 +64,14 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       iconUrl: 'icons/icon-128.png',
       title: t('notification.pomodoroTitle'),
       message: t('notification.pomodoroMessage'),
+      priority: 2,
+    });
+  } else if (alarm.name === 'pomodoro-break-end') {
+    chrome.notifications.create('pomodoro-break-end', {
+      type: 'basic',
+      iconUrl: 'icons/icon-128.png',
+      title: t('notification.breakTitle'),
+      message: t('notification.breakMessage'),
       priority: 2,
     });
   }

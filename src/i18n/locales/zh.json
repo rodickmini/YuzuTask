@@ -203,6 +203,8 @@
     "weeklyTitle": "YuzuTask 周报提醒",
     "weeklyMessage": "该写周报啦~ 点击新标签页生成本周周报吧！",
     "pomodoroTitle": "番茄钟结束",
-    "pomodoroMessage": "专注时间结束啦，休息一下吧~"
+    "pomodoroMessage": "专注时间结束啦，休息一下吧~",
+    "breakTitle": "休息结束",
+    "breakMessage": "休息够啦，继续专注吧~"
   }
 }

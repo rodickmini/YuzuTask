@@ -203,6 +203,8 @@
     "weeklyTitle": "YuzuTask Report Reminder",
     "weeklyMessage": "Time to write your weekly report! Click to generate it.",
     "pomodoroTitle": "Pomodoro Complete",
-    "pomodoroMessage": "Focus time is up, take a break~"
+    "pomodoroMessage": "Focus time is up, take a break~",
+    "breakTitle": "Break Over",
+    "breakMessage": "Break time is over, time to focus!"
   }
 }

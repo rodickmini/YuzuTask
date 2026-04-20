@@ -9,6 +9,7 @@ import Modal from '../ui/Modal';
 import { fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
+import * as petStorage from '../../utils/petStorage';
 import { showToast } from '../ui/Toast';
 import { toISODateString } from '../../utils/date';
 import { useTranslation } from '../../i18n';
@@ -84,6 +85,10 @@ export default function TaskList() {
     await storage.saveTasks(tasks);
     if (!isDone) {
       showToast(t('task.done'));
+      dispatch({ type: 'ADD_FOOD', payload: 1 });
+      const updated = await petStorage.awardFood(1, state.petState);
+      await petStorage.savePetState(updated);
+      showToast('+1 粮食', 'info');
     }
   };
 

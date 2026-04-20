@@ -3,6 +3,7 @@ import { useAppState } from '../store';
 import type { PomodoroSession, WorkLog } from '../types';
 import { useTranslation } from '../i18n';
 import * as storage from '../utils/storage';
+import * as petStorage from '../utils/petStorage';
 import { showToast } from '../components/ui/Toast';
 import { toISODateString } from '../utils/date';
 
@@ -57,6 +58,19 @@ export function usePomodoro() {
     }
   }, []);
 
+  // Set/cancel chrome.alarms for system notifications
+  const setAlarm = useCallback((name: string, delaySeconds: number) => {
+    if (typeof chrome !== 'undefined' && chrome.alarms) {
+      chrome.alarms.create(name, { when: Date.now() + delaySeconds * 1000 });
+    }
+  }, []);
+
+  const cancelAlarm = useCallback((name: string) => {
+    if (typeof chrome !== 'undefined' && chrome.alarms) {
+      chrome.alarms.clear(name);
+    }
+  }, []);
+
   const completeFocus = useCallback(async () => {
     stopInterval();
     setIsRunning(false);
@@ -102,8 +116,13 @@ export function usePomodoro() {
     setIsBreak(true);
     setTotalSeconds(breakMinutes * 60);
     setRemainingSeconds(breakMinutes * 60);
+    cancelAlarm('pomodoro-end');
+    setAlarm('pomodoro-break-end', breakMinutes * 60);
     showToast(t('pomodoro.focusDone'));
-  }, [selectedTaskId, settings, state.tasks, state.workLogs, completedCount, dispatch, stopInterval, t]);
+    dispatch({ type: 'ADD_FOOD', payload: 2 });
+    const updatedPet = await petStorage.awardFood(2, state.petState);
+    await petStorage.savePetState(updatedPet);
+  }, [selectedTaskId, settings, state.tasks, state.workLogs, state.petState, completedCount, dispatch, stopInterval, setAlarm, cancelAlarm, t]);
 
   const completeBreak = useCallback(async () => {
     stopInterval();
@@ -112,9 +131,10 @@ export function usePomodoro() {
     setIsPaused(false);
     setTotalSeconds(settings.pomodoroFocusMinutes * 60);
     setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
+    cancelAlarm('pomodoro-break-end');
     await storage.savePomodoroState(null);
     showToast(t('pomodoro.breakDone'));
-  }, [settings.pomodoroFocusMinutes, stopInterval, t]);
+  }, [settings.pomodoroFocusMinutes, stopInterval, cancelAlarm, t]);
 
   // Restore state from storage on mount
   useEffect(() => {
@@ -197,6 +217,8 @@ export function usePomodoro() {
     setIsRunning(true);
     setIsPaused(false);
     setTaskStatus(selectedTaskId, 'in_progress');
+    cancelAlarm('pomodoro-break-end');
+    setAlarm('pomodoro-end', totalSeconds);
     persist({
       isRunning: true,
       isPaused: false,
@@ -206,7 +228,7 @@ export function usePomodoro() {
       completedCount,
       isBreak: false,
     });
-  }, [totalSeconds, selectedTaskId, completedCount, persist, setTaskStatus]);
+  }, [totalSeconds, selectedTaskId, completedCount, persist, setTaskStatus, setAlarm, cancelAlarm]);
 
   const togglePause = useCallback(() => {
     setIsPaused(prev => {
@@ -232,8 +254,10 @@ export function usePomodoro() {
     setTaskStatus(selectedTaskId, 'todo');
     setTotalSeconds(settings.pomodoroFocusMinutes * 60);
     setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
+    cancelAlarm('pomodoro-end');
+    cancelAlarm('pomodoro-break-end');
     await storage.savePomodoroState(null);
-  }, [settings.pomodoroFocusMinutes, selectedTaskId, stopInterval, setTaskStatus]);
+  }, [settings.pomodoroFocusMinutes, selectedTaskId, stopInterval, setTaskStatus, cancelAlarm]);
 
   const progress = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 0;
 

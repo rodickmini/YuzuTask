@@ -2,6 +2,15 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import type { Task, WorkLog, PomodoroSession, UserSettings, AppView } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import * as storage from '../utils/storage';
+import * as petStorage from '../utils/petStorage';
+import type { PetState } from '../utils/petStorage';
+
+const DEFAULT_PET_STATE: PetState = {
+  foodCount: 3,
+  satiety: 80,
+  lastFeedAt: new Date().toISOString(),
+  lastDecayAt: new Date().toISOString(),
+};
 
 interface AppState {
   tasks: Task[];
@@ -11,6 +20,7 @@ interface AppState {
   currentView: AppView;
   isLoading: boolean;
   error: string | null;
+  petState: PetState;
 }
 
 export type Action =
@@ -25,7 +35,10 @@ export type Action =
   | { type: 'SET_SETTINGS'; payload: UserSettings }
   | { type: 'SET_VIEW'; payload: AppView }
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null };
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_PET_STATE'; payload: PetState }
+  | { type: 'ADD_FOOD'; payload: number }
+  | { type: 'FEED_PET' };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -53,6 +66,21 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, isLoading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload };
+    case 'SET_PET_STATE':
+      return { ...state, petState: action.payload };
+    case 'ADD_FOOD':
+      return { ...state, petState: { ...state.petState, foodCount: state.petState.foodCount + action.payload } };
+    case 'FEED_PET':
+      if (state.petState.foodCount <= 0) return state;
+      return {
+        ...state,
+        petState: {
+          ...state.petState,
+          foodCount: state.petState.foodCount - 1,
+          satiety: Math.min(100, state.petState.satiety + 20),
+          lastFeedAt: new Date().toISOString(),
+        },
+      };
     default:
       return state;
   }
@@ -66,6 +94,7 @@ const initialState: AppState = {
   currentView: 'home',
   isLoading: true,
   error: null,
+  petState: DEFAULT_PET_STATE,
 };
 
 interface AppContextType {
@@ -111,16 +140,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [tasks, workLogs, settings, pomodoroSessions] = await Promise.all([
+        const [tasks, workLogs, settings, pomodoroSessions, loadedPetState] = await Promise.all([
           storage.getTasks(),
           storage.getWorkLogs(),
           storage.getSettings(),
           storage.getPomodoroSessions(),
+          petStorage.getPetState(),
         ]);
         dispatch({ type: 'SET_TASKS', payload: tasks });
         dispatch({ type: 'SET_WORKLOGS', payload: workLogs });
         dispatch({ type: 'SET_SETTINGS', payload: settings });
         dispatch({ type: 'SET_POMODORO_SESSIONS', payload: pomodoroSessions });
+        dispatch({ type: 'SET_PET_STATE', payload: loadedPetState });
       } catch (err) {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
       } finally {

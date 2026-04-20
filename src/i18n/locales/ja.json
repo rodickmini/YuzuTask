@@ -203,6 +203,8 @@
     "weeklyTitle": "YuzuTask 週報リマインダー",
     "weeklyMessage": "週報を書く時間です！クリックして生成しましょう！",
     "pomodoroTitle": "ポモドーロ終了",
-    "pomodoroMessage": "集中時間が終わりました、休憩しましょう~"
+    "pomodoroMessage": "集中時間が終わりました、休憩しましょう~",
+    "breakTitle": "休憩終了",
+    "breakMessage": "休憩終了です、また集中しましょう！"
   }
 }
