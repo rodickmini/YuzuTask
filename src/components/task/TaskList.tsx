@@ -103,7 +103,9 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
           {sidebarToggleButton}
-          {t('task.todayTodo')}
+          {state.selectedTag
+            ? (state.selectedTag.startsWith('tag.') ? t(state.selectedTag, state.selectedTag.replace('tag.', '')) : state.selectedTag)
+            : t('sidebar.allTasks')}
           <span className="text-xs text-text-sub font-normal">({todayTasks.length})</span>
         </h3>
         <motion.button
@@ -172,6 +174,7 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
         <TaskForm
           task={editingTask}
           tags={allTags}
+          defaultTags={state.selectedTag ? [state.selectedTag] : undefined}
           onSave={handleSave}
           onCancel={() => { setShowForm(false); setEditingTask(undefined); }}
         />

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YuzuTask",
   "version": "1.0.0",
-  "description": "日系清新风的待办事项 & 番茄钟 & 工作记录新标签页",
+  "description": "日系清新风的任务管理 & 番茄钟 & 工作记录新标签页",
   "permissions": [
     "storage",
     "alarms",

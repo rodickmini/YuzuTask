@@ -185,7 +185,14 @@
     "allTasks": "All Tasks",
     "tags": "Tags",
     "hideSidebar": "Hide sidebar",
-    "showSidebar": "Show sidebar"
+    "showSidebar": "Show sidebar",
+    "addTag": "Add tag",
+    "deleteTag": "Delete tag",
+    "addTagPlaceholder": "Tag name...",
+    "addTagTitle": "Add Tag",
+    "addTagConfirm": "Add",
+    "addTagCancel": "Cancel",
+    "deleteTagConfirm": "Tag \"{{tag}}\" has {{count}} task(s). Deleting will remove this tag from those tasks. Continue?"
   },
   "footprint": {
     "title": "Activity Footprint",

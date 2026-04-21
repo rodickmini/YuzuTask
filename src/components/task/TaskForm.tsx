@@ -13,16 +13,17 @@ import { useTranslation } from '../../i18n';
 interface TaskFormProps {
   task?: Task;
   tags: string[];
+  defaultTags?: string[];
   onSave: (task: Task) => void;
   onCancel: () => void;
 }
 
-export default function TaskForm({ task, tags, onSave, onCancel }: TaskFormProps) {
+export default function TaskForm({ task, tags, defaultTags, onSave, onCancel }: TaskFormProps) {
   const { t } = useTranslation();
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
   const [priority, setPriority] = useState<Task['priority']>(task?.priority || 'medium');
-  const { selectedTags, toggleTag } = useTagSelection(task?.tags || []);
+  const { selectedTags, toggleTag } = useTagSelection(task?.tags || defaultTags || []);
   const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimatedMinutes?.toString() || '');
   const [dueDate, setDueDate] = useState(task?.dueDate || '');
 

@@ -8,7 +8,7 @@
     "title": "柚子任务 - 新标签页"
   },
   "nav": {
-    "home": "待办",
+    "home": "任务",
     "worklog": "记录",
     "weekly": "周报",
     "footprint": "足迹",
@@ -34,7 +34,7 @@
     "add": "添加",
     "save": "保存",
     "cancel": "取消",
-    "todayTodo": "今日待办",
+    "todayTodo": "今日任务",
     "completed": "已完成",
     "emptyState": "还没有任务哦，添加一个吧~",
     "added": "任务已添加~",
@@ -44,11 +44,11 @@
     "editTask": "编辑任务",
     "addTask": "添加任务",
     "inProgress": "进行中",
-    "todo": "待办",
+    "todo": "未开始",
     "tags": "标签：",
     "filter": {
       "all": "全部",
-      "todo": "待办",
+      "todo": "未开始",
       "inProgress": "进行中",
       "done": "已完成",
       "expandTags": "按标签筛选 ▼",
@@ -185,7 +185,14 @@
     "allTasks": "全部任务",
     "tags": "标签",
     "hideSidebar": "隐藏侧栏",
-    "showSidebar": "显示侧栏"
+    "showSidebar": "显示侧栏",
+    "addTag": "添加标签",
+    "deleteTag": "删除标签",
+    "addTagPlaceholder": "输入标签名...",
+    "addTagTitle": "添加标签",
+    "addTagConfirm": "确定",
+    "addTagCancel": "取消",
+    "deleteTagConfirm": "标签「{{tag}}」下有 {{count}} 个任务，删除后这些任务将不再关联此标签，确定删除？"
   },
   "footprint": {
     "title": "活动足迹",

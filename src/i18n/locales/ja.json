@@ -185,7 +185,14 @@
     "allTasks": "すべてのタスク",
     "tags": "タグ",
     "hideSidebar": "サイドバーを隠す",
-    "showSidebar": "サイドバーを表示"
+    "showSidebar": "サイドバーを表示",
+    "addTag": "タグを追加",
+    "deleteTag": "タグを削除",
+    "addTagPlaceholder": "タグ名...",
+    "addTagTitle": "タグを追加",
+    "addTagConfirm": "追加",
+    "addTagCancel": "キャンセル",
+    "deleteTagConfirm": "タグ「{{tag}}」には {{count}} 件のタスクがあります。削除するとこれらのタスクからタグが外れます。よろしいですか？"
   },
   "footprint": {
     "title": "活動履歴",
