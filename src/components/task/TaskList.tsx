@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import type { Task } from '../../types';
+import type { Task, DeletedItem } from '../../types';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
-import TaskFilter from './TaskFilter';
+import TaskFilter, { type SortBy } from './TaskFilter';
 import Modal from '../ui/Modal';
 import { fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
@@ -20,12 +20,15 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [statusFilter, setStatusFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
 
   const allTags = useMemo(() => {
     const tagSet = new Set(state.settings.customTags);
     state.tasks.forEach(t => t.tags.forEach(tag => tagSet.add(tag)));
     return Array.from(tagSet);
   }, [state.tasks, state.settings.customTags]);
+
+  const priorityWeight = { high: 3, medium: 2, low: 1 };
 
   const filteredTasks = useMemo(() => {
     return state.tasks
@@ -35,12 +38,26 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
         return true;
       })
       .sort((a, b) => {
-        // Done items at bottom
-        if (a.status === 'done' && b.status !== 'done') return 1;
-        if (a.status !== 'done' && b.status === 'done') return -1;
-        return a.order - b.order;
+        // Done items at bottom unless filtering by done
+        if (statusFilter !== 'done') {
+          if (a.status === 'done' && b.status !== 'done') return 1;
+          if (a.status !== 'done' && b.status === 'done') return -1;
+        }
+        switch (sortBy) {
+          case 'priority':
+            return priorityWeight[b.priority] - priorityWeight[a.priority];
+          case 'dueDate': {
+            const aDate = a.dueDate || '9999-99-99';
+            const bDate = b.dueDate || '9999-99-99';
+            return aDate.localeCompare(bDate);
+          }
+          case 'createdAt':
+            return b.createdAt.localeCompare(a.createdAt);
+          default:
+            return 0;
+        }
       });
-  }, [state.tasks, statusFilter, state.selectedTag]);
+  }, [state.tasks, statusFilter, state.selectedTag, sortBy]);
 
   const todayTasks = filteredTasks.filter(t =>
     t.status !== 'done' && (!t.dueDate || t.dueDate >= toISODateString(new Date()))
@@ -92,6 +109,16 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
   };
 
   const handleDelete = async (id: string) => {
+    const task = state.tasks.find(t => t.id === id);
+    if (!task) return;
+
+    // Move to trash
+    const trashItem: DeletedItem = { id: task.id, type: 'task', data: task, deletedAt: new Date().toISOString() };
+    dispatch({ type: 'MOVE_TO_TRASH', payload: trashItem });
+    const updatedTrash = [trashItem, ...state.trash];
+    await storage.saveTrash(updatedTrash);
+
+    // Remove from active tasks
     dispatch({ type: 'DELETE_TASK', payload: id });
     const tasks = state.tasks.filter(t => t.id !== id);
     await storage.saveTasks(tasks);
@@ -121,6 +148,8 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
       <TaskFilter
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
       />
 
       <div className="flex-1 overflow-auto mt-3 space-y-2 pr-1">

@@ -53,6 +53,11 @@
       "done": "Completed",
       "expandTags": "Filter by tag ▼",
       "collapseTags": "Collapse tags ▲"
+    },
+    "sort": {
+      "priority": "Priority",
+      "createdAt": "Created",
+      "dueDate": "Due date"
     }
   },
   "worklog": {
@@ -219,5 +224,21 @@
     "pomodoroMessage": "Focus time is up, take a break~",
     "breakTitle": "Break Over",
     "breakMessage": "Break time is over, time to focus!"
+  },
+  "trash": {
+    "title": "Recently Deleted",
+    "empty": "Trash is empty",
+    "restore": "Restore",
+    "permanentDelete": "Delete Permanently",
+    "emptyTrash": "Empty Trash",
+    "confirmRestore": "Restore \"{{name}}\"?",
+    "confirmPermanentDelete": "\"{{name}}\" will be permanently deleted and cannot be recovered. Continue?",
+    "confirmEmptyTrash": "All items will be permanently deleted. This cannot be undone. Continue?",
+    "daysRemaining": "Auto-deletes in {{days}}d",
+    "tasks": "Tasks",
+    "workLogs": "Work Logs",
+    "restored": "Restored~",
+    "permanentlyDeleted": "Permanently deleted",
+    "emptied": "Trash emptied"
   }
 }

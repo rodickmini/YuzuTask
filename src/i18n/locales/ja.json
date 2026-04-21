@@ -53,6 +53,11 @@
       "done": "完了",
       "expandTags": "タグで絞り込む ▼",
       "collapseTags": "タグを閉じる ▲"
+    },
+    "sort": {
+      "priority": "優先度",
+      "createdAt": "作成日",
+      "dueDate": "期限"
     }
   },
   "worklog": {
@@ -219,5 +224,21 @@
     "pomodoroMessage": "集中時間が終わりました、休憩しましょう~",
     "breakTitle": "休憩終了",
     "breakMessage": "休憩終了です、また集中しましょう！"
+  },
+  "trash": {
+    "title": "最近削除",
+    "empty": "ゴミ箱は空です",
+    "restore": "復元",
+    "permanentDelete": "完全に削除",
+    "emptyTrash": "ゴミ箱を空にする",
+    "confirmRestore": "「{{name}}」を復元しますか？",
+    "confirmPermanentDelete": "「{{name}}」を完全に削除しますか？復元できません。",
+    "confirmEmptyTrash": "すべての項目が完全に削除されます。続行しますか？",
+    "daysRemaining": "{{days}}日後に自動削除",
+    "tasks": "タスク",
+    "workLogs": "作業記録",
+    "restored": "復元しました~",
+    "permanentlyDeleted": "完全に削除しました",
+    "emptied": "ゴミ箱を空にしました"
   }
 }

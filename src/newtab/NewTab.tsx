@@ -12,9 +12,10 @@ import WorkLogList from '../components/worklog/WorkLogList';
 import WeeklyReport from '../components/weekly/WeeklyReport';
 import FootprintPage from '../components/footprint/FootprintPage';
 import SettingsPage from '../components/settings/SettingsPage';
+import TrashView from '../components/trash/TrashView';
 import Toast from '../components/ui/Toast';
 import PetMascot from '../components/ui/PetMascot';
-import { staggerContainer, staggerItem } from '../components/ui/animations';
+import { staggerContainer, staggerItem, pageTransition } from '../components/ui/animations';
 
 function MainContent() {
   const { state, dispatch } = useAppState();
@@ -67,8 +68,10 @@ function MainContent() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
+        <AnimatePresence mode="wait">
         {state.currentView === 'home' && (
           <motion.div
+            key="home"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
@@ -120,9 +123,11 @@ function MainContent() {
 
         {state.currentView === 'worklog' && (
           <motion.div
-            variants={staggerItem}
+            key="worklog"
+            variants={pageTransition}
             initial="initial"
             animate="animate"
+            exit="exit"
             className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
           >
             <WorkLogList />
@@ -131,9 +136,11 @@ function MainContent() {
 
         {state.currentView === 'weekly' && (
           <motion.div
-            variants={staggerItem}
+            key="weekly"
+            variants={pageTransition}
             initial="initial"
             animate="animate"
+            exit="exit"
             className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
           >
             <WeeklyReport />
@@ -142,9 +149,11 @@ function MainContent() {
 
         {state.currentView === 'footprint' && (
           <motion.div
-            variants={staggerItem}
+            key="footprint"
+            variants={pageTransition}
             initial="initial"
             animate="animate"
+            exit="exit"
             className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
           >
             <FootprintPage />
@@ -153,14 +162,30 @@ function MainContent() {
 
         {state.currentView === 'settings' && (
           <motion.div
-            variants={staggerItem}
+            key="settings"
+            variants={pageTransition}
             initial="initial"
             animate="animate"
+            exit="exit"
             className="h-full overflow-auto"
           >
             <SettingsPage />
           </motion.div>
         )}
+
+        {state.currentView === 'trash' && (
+          <motion.div
+            key="trash"
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
+          >
+            <TrashView />
+          </motion.div>
+        )}
+        </AnimatePresence>
       </motion.main>
 
       <BottomBar />

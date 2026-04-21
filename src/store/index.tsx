@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, type ReactNode } from 'react';
-import type { Task, WorkLog, PomodoroSession, UserSettings, AppView } from '../types';
+import type { Task, WorkLog, PomodoroSession, UserSettings, AppView, DeletedItem } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import * as storage from '../utils/storage';
 import * as petStorage from '../utils/petStorage';
@@ -23,6 +23,7 @@ interface AppState {
   petState: PetState;
   selectedTag: string | null;
   isSidebarVisible: boolean;
+  trash: DeletedItem[];
 }
 
 export type Action =
@@ -42,7 +43,12 @@ export type Action =
   | { type: 'ADD_FOOD'; payload: number }
   | { type: 'FEED_PET' }
   | { type: 'SET_SELECTED_TAG'; payload: string | null }
-  | { type: 'TOGGLE_SIDEBAR' };
+  | { type: 'TOGGLE_SIDEBAR' }
+  | { type: 'SET_TRASH'; payload: DeletedItem[] }
+  | { type: 'MOVE_TO_TRASH'; payload: DeletedItem }
+  | { type: 'RESTORE_FROM_TRASH'; payload: string }
+  | { type: 'PERMANENT_DELETE'; payload: string }
+  | { type: 'EMPTY_TRASH' };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -89,6 +95,16 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, selectedTag: action.payload };
     case 'TOGGLE_SIDEBAR':
       return { ...state, isSidebarVisible: !state.isSidebarVisible };
+    case 'SET_TRASH':
+      return { ...state, trash: action.payload };
+    case 'MOVE_TO_TRASH':
+      return { ...state, trash: [action.payload, ...state.trash] };
+    case 'RESTORE_FROM_TRASH':
+      return { ...state, trash: state.trash.filter(item => item.id !== action.payload) };
+    case 'PERMANENT_DELETE':
+      return { ...state, trash: state.trash.filter(item => item.id !== action.payload) };
+    case 'EMPTY_TRASH':
+      return { ...state, trash: [] };
     default:
       return state;
   }
@@ -105,6 +121,7 @@ const initialState: AppState = {
   petState: DEFAULT_PET_STATE,
   selectedTag: null,
   isSidebarVisible: true,
+  trash: [],
 };
 
 interface AppContextType {
@@ -150,18 +167,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const [tasks, workLogs, settings, pomodoroSessions, loadedPetState] = await Promise.all([
+        const [tasks, workLogs, settings, pomodoroSessions, loadedPetState, trash] = await Promise.all([
           storage.getTasks(),
           storage.getWorkLogs(),
           storage.getSettings(),
           storage.getPomodoroSessions(),
           petStorage.getPetState(),
+          storage.purgeExpiredTrash(),
         ]);
         dispatch({ type: 'SET_TASKS', payload: tasks });
         dispatch({ type: 'SET_WORKLOGS', payload: workLogs });
         dispatch({ type: 'SET_SETTINGS', payload: settings });
         dispatch({ type: 'SET_POMODORO_SESSIONS', payload: pomodoroSessions });
         dispatch({ type: 'SET_PET_STATE', payload: loadedPetState });
+        dispatch({ type: 'SET_TRASH', payload: trash });
       } catch (err) {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
       } finally {

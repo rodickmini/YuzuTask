@@ -3,7 +3,7 @@ import { Check, Trash2, Clock, AlertCircle } from 'lucide-react';
 import type { Task } from '../../types';
 import { PRIORITY_CONFIG } from '../../types';
 import Tag from '../ui/Tag';
-import { cardIn } from '../ui/animations';
+import { listItem } from '../ui/animations';
 import { formatRelativeDate, formatDuration } from '../../utils/date';
 
 interface TaskItemProps {
@@ -19,8 +19,7 @@ export default function TaskItem({ task, onToggle, onDelete, onClick }: TaskItem
 
   return (
     <motion.div
-      layout
-      variants={cardIn}
+      variants={listItem}
       initial="initial"
       animate="animate"
       exit="exit"

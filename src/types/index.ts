@@ -54,7 +54,14 @@ export interface UserSettings {
   newTaskPosition: 'top' | 'bottom';
 }
 
-export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings';
+export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings' | 'trash';
+
+export interface DeletedItem {
+  id: string;
+  type: 'task' | 'worklog';
+  data: Task | WorkLog;
+  deletedAt: string;
+}
 
 export const DEFAULT_SETTINGS: UserSettings = {
   pomodoroFocusMinutes: 25,

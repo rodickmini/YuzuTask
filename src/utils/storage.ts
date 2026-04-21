@@ -1,4 +1,4 @@
-import type { Task, WorkLog, PomodoroSession, UserSettings } from '../types';
+import type { Task, WorkLog, PomodoroSession, UserSettings, DeletedItem } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 
 const KEYS = {
@@ -7,6 +7,7 @@ const KEYS = {
   POMODORO_SESSIONS: 'yuzutask_pomodoro_sessions',
   SETTINGS: 'yuzutask_settings',
   POMODORO_STATE: 'yuzutask_pomodoro_state',
+  TRASH: 'yuzutask_trash',
 } as const;
 
 function isChromeStorage(): boolean {
@@ -100,6 +101,25 @@ export async function getPomodoroState(): Promise<PomodoroState | null> {
 
 export async function savePomodoroState(state: PomodoroState | null): Promise<void> {
   return set(KEYS.POMODORO_STATE, state);
+}
+
+// Trash (Recently Deleted)
+export async function getTrash(): Promise<DeletedItem[]> {
+  return get<DeletedItem[]>(KEYS.TRASH, []);
+}
+
+export async function saveTrash(items: DeletedItem[]): Promise<void> {
+  return set(KEYS.TRASH, items);
+}
+
+export async function purgeExpiredTrash(): Promise<DeletedItem[]> {
+  const items = await getTrash();
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const remaining = items.filter(item => new Date(item.deletedAt).getTime() > thirtyDaysAgo);
+  if (remaining.length !== items.length) {
+    await saveTrash(remaining);
+  }
+  return remaining;
 }
 
 // Clear all YuzuTask data

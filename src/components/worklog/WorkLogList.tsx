@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Clock, Calendar } from 'lucide-react';
-import type { WorkLog } from '../../types';
+import type { WorkLog, DeletedItem } from '../../types';
 import WorkLogForm from './WorkLogForm';
 import CalendarView from './CalendarView';
 import Tag from '../ui/Tag';
 import Modal from '../ui/Modal';
-import { cardIn, expandCollapse, fadeIn } from '../ui/animations';
+import { listItem, expandCollapse, fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
@@ -53,6 +53,16 @@ export default function WorkLogList() {
   };
 
   const handleDelete = async (id: string) => {
+    const log = state.workLogs.find(l => l.id === id);
+    if (!log) return;
+
+    // Move to trash
+    const trashItem: DeletedItem = { id: log.id, type: 'worklog', data: log, deletedAt: new Date().toISOString() };
+    dispatch({ type: 'MOVE_TO_TRASH', payload: trashItem });
+    const updatedTrash = [trashItem, ...state.trash];
+    await storage.saveTrash(updatedTrash);
+
+    // Remove from active logs
     dispatch({ type: 'DELETE_WORKLOG', payload: id });
     const logs = state.workLogs.filter(l => l.id !== id);
     await storage.saveWorkLogs(logs);
@@ -147,8 +157,7 @@ export default function WorkLogList() {
                 {logs.map(log => (
                   <motion.div
                     key={log.id}
-                    layout
-                    variants={cardIn}
+                    variants={listItem}
                     initial="initial"
                     animate="animate"
                     exit="exit"

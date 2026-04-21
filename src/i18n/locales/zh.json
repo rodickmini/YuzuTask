@@ -53,6 +53,11 @@
       "done": "已完成",
       "expandTags": "按标签筛选 ▼",
       "collapseTags": "收起标签 ▲"
+    },
+    "sort": {
+      "priority": "优先级",
+      "createdAt": "创建时间",
+      "dueDate": "截止日期"
     }
   },
   "worklog": {
@@ -219,5 +224,21 @@
     "pomodoroMessage": "专注时间结束啦，休息一下吧~",
     "breakTitle": "休息结束",
     "breakMessage": "休息够啦，继续专注吧~"
+  },
+  "trash": {
+    "title": "最近删除",
+    "empty": "回收站是空的",
+    "restore": "恢复",
+    "permanentDelete": "永久删除",
+    "emptyTrash": "清空回收站",
+    "confirmRestore": "确定恢复「{{name}}」？",
+    "confirmPermanentDelete": "永久删除后无法恢复，确定删除「{{name}}」？",
+    "confirmEmptyTrash": "将永久删除所有项目，此操作不可恢复，确定？",
+    "daysRemaining": "{{days}}天后自动删除",
+    "tasks": "任务",
+    "workLogs": "工作记录",
+    "restored": "已恢复~",
+    "permanentlyDeleted": "已永久删除",
+    "emptied": "回收站已清空"
   }
 }

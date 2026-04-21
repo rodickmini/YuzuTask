@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, Trash2 } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -222,8 +222,22 @@ export default function TagSidebar() {
         </DndContext>
       </div>
 
+      {/* Trash entry */}
+      <div className="pl-2 pr-4 pt-2">
+        <button
+          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'trash' })}
+          className="w-full flex items-center gap-2 pl-2.5 pr-3 py-[5px] rounded-md text-[12px] leading-tight text-text-sub/60 hover:bg-black/[0.05] transition-colors"
+        >
+          <Trash2 size={13} />
+          <span className="flex-1 text-left">{t('trash.title')}</span>
+          {state.trash.length > 0 && (
+            <span className="text-[11px] text-text-sub/40 tabular-nums">{state.trash.length}</span>
+          )}
+        </button>
+      </div>
+
       {/* Bottom action buttons */}
-      <div className="pl-2 pr-4 pt-2 pb-2 flex items-center gap-3">
+      <div className="pl-2 pr-4 pb-2 flex items-center gap-3">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => { setNewTag(''); setShowAddDialog(true); }}

@@ -7,7 +7,7 @@ import { formatRelativeDate, formatDuration } from '../../utils/date';
 import { useTranslation } from '../../i18n';
 import Tag from '../ui/Tag';
 import ContributionGraph from './ContributionGraph';
-import { fadeIn, fadeInUp, cardIn } from '../ui/animations';
+import { fadeIn, listItem } from '../ui/animations';
 
 export default function FootprintPage() {
   const { state } = useAppState();
@@ -146,7 +146,7 @@ export default function FootprintPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Stats */}
-      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="mb-3">
+      <motion.div variants={fadeIn} initial="initial" animate="animate" className="mb-3">
         <div className="flex items-center gap-1.5 mb-2">
           <span className="text-base">👣</span>
           <h3 className="text-sm font-semibold text-text-main">{t('footprint.title')}</h3>
@@ -187,7 +187,7 @@ export default function FootprintPage() {
         {selectedDate && (
           <motion.div
             key={format(selectedDate, 'yyyy-MM-dd')}
-            variants={fadeInUp}
+            variants={fadeIn}
             initial="initial"
             animate="animate"
             exit={{ opacity: 0, height: 0 }}
@@ -206,7 +206,7 @@ export default function FootprintPage() {
                   {timeline.map((item, idx) => (
                     <motion.div
                       key={idx}
-                      variants={cardIn}
+                      variants={listItem}
                       initial="initial"
                       animate="animate"
                       className="flex gap-3 p-2 bg-warm-dark/30 rounded-xl"
