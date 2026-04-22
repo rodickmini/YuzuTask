@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Trash2, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { useAppState } from '../../store';
 import { useTranslation } from '../../i18n';
 import * as trashService from '../../services/trashService';
@@ -8,8 +8,9 @@ import { listItem, fadeIn } from '../ui/animations';
 import { TRASH_CONFIG } from '../../constants';
 import { useConfirm } from '../../hooks/useConfirm';
 import type { Task, WorkLog } from '../../types';
+import type React from 'react';
 
-export default function TrashView() {
+export default function TrashView({ sidebarToggleButton }: { sidebarToggleButton?: React.ReactNode }) {
   const { state, dispatch } = useAppState();
   const { t } = useTranslation();
 
@@ -91,14 +92,8 @@ export default function TrashView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
-            className="p-1 -ml-1 rounded-lg hover:bg-black/[0.05] transition-colors"
-          >
-            <ArrowLeft size={16} className="text-text-sub" />
-          </motion.button>
-          <span className="text-base">🗑️</span> {t('trash.title')}
+          {sidebarToggleButton}
+          {t('trash.title')}
           <span className="text-xs text-text-sub font-normal">({state.trash.length})</span>
         </h3>
         {state.trash.length > 0 && (

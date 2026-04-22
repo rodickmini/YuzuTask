@@ -67,6 +67,7 @@ function MainContent() {
   }
 
   const showSidebar = state.isSidebarVisible && state.currentView === 'home';
+  const isTrashView = state.selectedTag === '__trash__';
 
   const toggleButton = (
     <motion.button
@@ -120,12 +121,16 @@ function MainContent() {
                 )}
               </AnimatePresence>
 
-              {/* Task List */}
+              {/* Task List or Trash View */}
               <div className="flex-1 min-w-0 p-3 sm:p-5 overflow-auto">
-                <TaskList
-                  sidebarToggleButton={toggleButton}
-                  triggerNewTask={triggerNewTask}
-                />
+                {isTrashView ? (
+                  <TrashView sidebarToggleButton={toggleButton} />
+                ) : (
+                  <TaskList
+                    sidebarToggleButton={toggleButton}
+                    triggerNewTask={triggerNewTask}
+                  />
+                )}
               </div>
             </div>
 
@@ -197,18 +202,7 @@ function MainContent() {
           </motion.div>
         )}
 
-        {state.currentView === 'trash' && (
-          <motion.div
-            key="trash"
-            variants={pageTransition}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
-          >
-            <TrashView />
-          </motion.div>
-        )}
+
         </AnimatePresence>
       </motion.main>
 

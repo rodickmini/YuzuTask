@@ -40,7 +40,9 @@ export default function TaskList({ sidebarToggleButton, triggerNewTask }: { side
     return state.tasks
       .filter(t => {
         if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-        if (state.selectedTag && !t.tags.includes(state.selectedTag)) return false;
+        if (state.selectedTag === '__untagged__') {
+          if (t.tags.length > 0) return false;
+        } else if (state.selectedTag && !t.tags.includes(state.selectedTag)) return false;
         if (state.searchQuery) {
           const q = state.searchQuery.toLowerCase();
           if (!t.title.toLowerCase().includes(q) && !t.description?.toLowerCase().includes(q)) return false;
@@ -101,7 +103,9 @@ export default function TaskList({ sidebarToggleButton, triggerNewTask }: { side
         <h3 className="text-sm font-semibold text-text-main flex items-center gap-1.5">
           {sidebarToggleButton}
           {state.selectedTag
-            ? (state.selectedTag.startsWith('tag.') ? t(state.selectedTag, state.selectedTag.replace('tag.', '')) : state.selectedTag)
+            ? (state.selectedTag === '__untagged__'
+              ? t('sidebar.untagged')
+              : (state.selectedTag.startsWith('tag.') ? t(state.selectedTag, state.selectedTag.replace('tag.', '')) : state.selectedTag))
             : t('sidebar.allTasks')}
           <span className="text-xs text-text-sub font-normal">({todayTasks.length})</span>
         </h3>

@@ -54,7 +54,7 @@ export interface UserSettings {
   newTaskPosition: 'top' | 'bottom';
 }
 
-export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings' | 'trash';
+export type AppView = 'home' | 'worklog' | 'weekly' | 'footprint' | 'settings';
 
 export interface DeletedItem {
   id: string;

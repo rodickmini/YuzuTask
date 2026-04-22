@@ -205,7 +205,8 @@
     "addTagTitle": "添加标签",
     "addTagConfirm": "确定",
     "addTagCancel": "取消",
-    "deleteTagConfirm": "标签「{{tag}}」下有 {{count}} 个任务，删除后这些任务将不再关联此标签，确定删除？"
+    "deleteTagConfirm": "标签「{{tag}}」下有 {{count}} 个任务，删除后这些任务将不再关联此标签，确定删除？",
+    "untagged": "未标记"
   },
   "footprint": {
     "title": "活动足迹",

@@ -87,6 +87,7 @@ export default function TagSidebar() {
   }, [state.tasks]);
 
   const totalCount = state.tasks.filter(t => t.status !== 'done').length;
+  const untaggedCount = state.tasks.filter(t => t.status !== 'done' && t.tags.length === 0).length;
 
   const updateTags = async (nextTags: string[]) => {
     const settings = { ...state.settings, customTags: nextTags };
@@ -180,6 +181,15 @@ export default function TagSidebar() {
       </div>
 
       <div className="flex-1 overflow-auto pl-2 pr-4 space-y-[1px]">
+        {untaggedCount > 0 && (
+          <button
+            onClick={() => dispatch({ type: 'SET_SELECTED_TAG', payload: '__untagged__' })}
+            className={itemClass(state.selectedTag === '__untagged__')}
+          >
+            <span className="flex-1 text-left">{t('sidebar.untagged')}</span>
+            <span className="text-[11px] text-text-sub/40 tabular-nums">{untaggedCount}</span>
+          </button>
+        )}
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={state.settings.customTags} strategy={verticalListSortingStrategy}>
             {allTags.map(tag => {
@@ -223,8 +233,12 @@ export default function TagSidebar() {
       {/* Trash entry */}
       <div className="pl-2 pr-4 pt-2">
         <button
-          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'trash' })}
-          className="w-full flex items-center gap-2 pl-2.5 pr-3 py-[5px] rounded-md text-[12px] leading-tight text-text-sub/60 hover:bg-black/[0.05] transition-colors"
+          onClick={() => dispatch({ type: 'SET_SELECTED_TAG', payload: '__trash__' })}
+          className={`w-full flex items-center gap-2 pl-2.5 pr-3 py-[5px] rounded-md text-[12px] leading-tight transition-colors ${
+            state.selectedTag === '__trash__'
+              ? 'bg-primary/25 text-primary-dark font-medium'
+              : 'text-text-sub/60 hover:bg-black/[0.05]'
+          }`}
         >
           <Trash2 size={13} />
           <span className="flex-1 text-left">{t('trash.title')}</span>

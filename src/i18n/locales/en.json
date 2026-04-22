@@ -205,7 +205,8 @@
     "addTagTitle": "Add Tag",
     "addTagConfirm": "Add",
     "addTagCancel": "Cancel",
-    "deleteTagConfirm": "Tag \"{{tag}}\" has {{count}} task(s). Deleting will remove this tag from those tasks. Continue?"
+    "deleteTagConfirm": "Tag \"{{tag}}\" has {{count}} task(s). Deleting will remove this tag from those tasks. Continue?",
+    "untagged": "Untagged"
   },
   "footprint": {
     "title": "Activity Footprint",
