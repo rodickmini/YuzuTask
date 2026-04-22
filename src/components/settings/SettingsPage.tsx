@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAppState } from '../../store';
 import { useTranslation, changeLanguage } from '../../i18n';
@@ -6,6 +6,8 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import * as storage from '../../utils/storage';
 import { showToast } from '../ui/Toast';
+import { useConfirm } from '../../hooks/useConfirm';
+import * as dataService from '../../services/dataService';
 
 const LANGUAGES = [
   { value: 'zh', label: '简体中文' },
@@ -16,6 +18,8 @@ const LANGUAGES = [
 export default function SettingsPage() {
   const { state, dispatch } = useAppState();
   const { t, i18n } = useTranslation();
+  const { confirm, ConfirmDialog } = useConfirm();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [focusMinutes, setFocusMinutes] = useState(state.settings.pomodoroFocusMinutes.toString());
   const [breakMinutes, setBreakMinutes] = useState(state.settings.pomodoroBreakMinutes.toString());
   const [longBreakMinutes, setLongBreakMinutes] = useState(state.settings.longBreakMinutes.toString());
@@ -137,19 +141,68 @@ export default function SettingsPage() {
       <div className="bg-white rounded-2xl p-4 border border-warm-dark/50 space-y-3">
         <h4 className="text-sm font-medium text-text-main">{t('settings.dataSection')}</h4>
         <p className="text-xs text-text-sub">{t('settings.dataNotice')}</p>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={async () => {
-            if (confirm(t('settings.clearDataConfirm'))) {
-              await storage.clearAll();
-              location.reload();
-            }
-          }}
-        >
-          {t('settings.clearData')}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              try {
+                const json = await dataService.exportData();
+                dataService.triggerDownload(json);
+                showToast(t('settings.exportSuccess'));
+              } catch {
+                showToast(t('settings.exportError'));
+              }
+            }}
+          >
+            {t('settings.exportData')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {t('settings.importData')}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              try {
+                const text = await file.text();
+                await dataService.importData(text);
+                showToast(t('settings.importSuccess'));
+                setTimeout(() => location.reload(), 500);
+              } catch {
+                showToast(t('settings.importError'));
+              }
+              e.target.value = '';
+            }}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              const confirmed = await confirm({
+                title: t('settings.clearData'),
+                message: t('settings.clearDataConfirm'),
+                variant: 'danger',
+              });
+              if (confirmed) {
+                await storage.clearAll();
+                location.reload();
+              }
+            }}
+          >
+            {t('settings.clearData')}
+          </Button>
+        </div>
       </div>
+      <ConfirmDialog />
     </motion.div>
   );
 }

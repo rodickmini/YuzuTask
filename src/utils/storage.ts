@@ -1,5 +1,6 @@
 import type { Task, WorkLog, PomodoroSession, UserSettings, DeletedItem } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
+import { TRASH_CONFIG } from '../constants';
 
 const KEYS = {
   TASKS: 'yuzutask_tasks',
@@ -114,8 +115,8 @@ export async function saveTrash(items: DeletedItem[]): Promise<void> {
 
 export async function purgeExpiredTrash(): Promise<DeletedItem[]> {
   const items = await getTrash();
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  const remaining = items.filter(item => new Date(item.deletedAt).getTime() > thirtyDaysAgo);
+  const cutoff = Date.now() - TRASH_CONFIG.AUTO_PURGE_DAYS * 24 * 60 * 60 * 1000;
+  const remaining = items.filter(item => new Date(item.deletedAt).getTime() > cutoff);
   if (remaining.length !== items.length) {
     await saveTrash(remaining);
   }

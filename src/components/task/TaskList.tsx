@@ -1,24 +1,30 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import type { Task, DeletedItem } from '../../types';
+import type { Task } from '../../types';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
 import TaskFilter, { type SortBy } from './TaskFilter';
 import Modal from '../ui/Modal';
 import { fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
-import * as storage from '../../utils/storage';
-import * as petStorage from '../../utils/petStorage';
-import { showToast } from '../ui/Toast';
+import * as taskService from '../../services/taskService';
 import { toISODateString } from '../../utils/date';
 import { useTranslation } from '../../i18n';
 
-export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?: React.ReactNode }) {
+export default function TaskList({ sidebarToggleButton, triggerNewTask }: { sidebarToggleButton?: React.ReactNode; triggerNewTask?: number }) {
   const { t } = useTranslation();
   const { state, dispatch } = useAppState();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
+
+  // Open new task form when triggered externally (e.g. Cmd+N)
+  useEffect(() => {
+    if (triggerNewTask && triggerNewTask > 0) {
+      setEditingTask(undefined);
+      setShowForm(true);
+    }
+  }, [triggerNewTask]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
   const [sortBy, setSortBy] = useState<SortBy>('createdAt');
 
@@ -35,6 +41,10 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
       .filter(t => {
         if (statusFilter !== 'all' && t.status !== statusFilter) return false;
         if (state.selectedTag && !t.tags.includes(state.selectedTag)) return false;
+        if (state.searchQuery) {
+          const q = state.searchQuery.toLowerCase();
+          if (!t.title.toLowerCase().includes(q) && !t.description?.toLowerCase().includes(q)) return false;
+        }
         return true;
       })
       .sort((a, b) => {
@@ -57,72 +67,32 @@ export default function TaskList({ sidebarToggleButton }: { sidebarToggleButton?
             return 0;
         }
       });
-  }, [state.tasks, statusFilter, state.selectedTag, sortBy]);
+  }, [state.tasks, statusFilter, state.selectedTag, sortBy, state.searchQuery]);
 
   const todayTasks = filteredTasks.filter(t =>
     t.status !== 'done' && (!t.dueDate || t.dueDate >= toISODateString(new Date()))
   );
   const doneTasks = filteredTasks.filter(t => t.status === 'done');
 
+  const serviceCtx = { dispatch, tasks: state.tasks, trash: state.trash, settings: state.settings, petState: state.petState };
+
   const handleSave = async (task: Task) => {
     const isNew = !state.tasks.find(t => t.id === task.id);
     if (isNew) {
-      // Determine order based on user preference
-      const adjustedTask = { ...task };
-      if (state.settings.newTaskPosition === 'top') {
-        const minOrder = state.tasks.length > 0
-          ? Math.min(...state.tasks.map(t => t.order))
-          : Date.now();
-        adjustedTask.order = minOrder - 1;
-      }
-      dispatch({ type: 'ADD_TASK', payload: adjustedTask });
-      const updated = [...state.tasks, adjustedTask];
-      await storage.saveTasks(updated);
-      showToast(t('task.added'));
+      await taskService.addTask(serviceCtx, task);
     } else {
-      dispatch({ type: 'UPDATE_TASK', payload: task });
-      const updated = state.tasks.map(t => t.id === task.id ? task : t);
-      await storage.saveTasks(updated);
-      showToast(t('task.updated'));
+      await taskService.updateTask(serviceCtx, task);
     }
     setShowForm(false);
     setEditingTask(undefined);
   };
 
   const handleToggle = async (task: Task) => {
-    const isDone = task.status === 'done';
-    const updated: Task = {
-      ...task,
-      status: isDone ? 'todo' : 'done',
-      completedAt: isDone ? undefined : new Date().toISOString(),
-    };
-    dispatch({ type: 'UPDATE_TASK', payload: updated });
-    const tasks = state.tasks.map(t => t.id === task.id ? updated : t);
-    await storage.saveTasks(tasks);
-    if (!isDone) {
-      showToast(t('task.done'));
-      dispatch({ type: 'ADD_FOOD', payload: 1 });
-      const updated = await petStorage.awardFood(1, state.petState);
-      await petStorage.savePetState(updated);
-      showToast('+1 粮食', 'info');
-    }
+    await taskService.toggleTask(serviceCtx, task);
   };
 
   const handleDelete = async (id: string) => {
-    const task = state.tasks.find(t => t.id === id);
-    if (!task) return;
-
-    // Move to trash
-    const trashItem: DeletedItem = { id: task.id, type: 'task', data: task, deletedAt: new Date().toISOString() };
-    dispatch({ type: 'MOVE_TO_TRASH', payload: trashItem });
-    const updatedTrash = [trashItem, ...state.trash];
-    await storage.saveTrash(updatedTrash);
-
-    // Remove from active tasks
-    dispatch({ type: 'DELETE_TASK', payload: id });
-    const tasks = state.tasks.filter(t => t.id !== id);
-    await storage.saveTasks(tasks);
-    showToast(t('task.deleted'));
+    await taskService.deleteTask(serviceCtx, id);
   };
 
   return (

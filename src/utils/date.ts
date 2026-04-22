@@ -9,7 +9,7 @@ export function getDateFnsLocale() {
   return enUS;
 }
 
-function getDateFormat(): string {
+export function getDateFormat(): string {
   const lang = i18n.language;
   if (lang.startsWith('zh')) return 'M月d日 EEEE';
   if (lang.startsWith('ja')) return 'M月d日(E)';
@@ -50,6 +50,16 @@ export function getGreeting(): { text: string; emoji: string } {
 
 export function toISODateString(date: Date): string {
   return format(date, 'yyyy-MM-dd');
+}
+
+export function getStartOfCurrentWeek(): Date {
+  const now = new Date();
+  const day = now.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayOffset);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
 }
 
 export function formatDuration(minutes: number): string {

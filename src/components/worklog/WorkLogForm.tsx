@@ -12,28 +12,30 @@ import { useTranslation } from 'react-i18next';
 
 interface WorkLogFormProps {
   tags: string[];
+  initialData?: WorkLog;
   onSave: (log: WorkLog) => void;
   onCancel: () => void;
 }
 
-export default function WorkLogForm({ tags, onSave, onCancel }: WorkLogFormProps) {
+export default function WorkLogForm({ tags, initialData, onSave, onCancel }: WorkLogFormProps) {
   const { t } = useTranslation();
-  const [content, setContent] = useState('');
-  const [durationMinutes, setDurationMinutes] = useState('');
-  const { selectedTags, toggleTag } = useTagSelection();
-  const [date, setDate] = useState(toISODateString(new Date()));
+  const [content, setContent] = useState(initialData?.content || '');
+  const [durationMinutes, setDurationMinutes] = useState(initialData?.durationMinutes?.toString() || '');
+  const { selectedTags, toggleTag } = useTagSelection(initialData?.tags);
+  const [date, setDate] = useState(initialData?.date || toISODateString(new Date()));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
 
     const log: WorkLog = {
-      id: generateId(),
+      id: initialData?.id || generateId(),
       content: content.trim(),
       tags: selectedTags,
       durationMinutes: parseInt(durationMinutes) || 30,
       date,
-      createdAt: new Date().toISOString(),
+      relatedTaskId: initialData?.relatedTaskId,
+      createdAt: initialData?.createdAt || new Date().toISOString(),
     };
     onSave(log);
   };

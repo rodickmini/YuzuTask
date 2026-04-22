@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n';
 import { getGreeting, formatTime } from '../../utils/date';
 import { usePomodoroContext } from '../../hooks/PomodoroContext';
+import SearchBar from '../ui/SearchBar';
 
 function PomodoroIndicator() {
   const { isRunning, isPaused, isBreak, remainingSeconds } = usePomodoroContext();
@@ -70,6 +71,7 @@ export default function Header() {
         <span className="text-sm sm:text-lg text-text-main font-medium truncate">{greeting.text}</span>
       </div>
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <SearchBar />
         <PomodoroIndicator />
         <motion.div
           className="text-xl sm:text-2xl lg:text-3xl font-light text-text-main tabular-nums tracking-wider"

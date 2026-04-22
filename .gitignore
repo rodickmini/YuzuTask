@@ -42,6 +42,8 @@ scripts/ralph/.last-branch
 
 # AI assistant config
 .claude/
+.omc/
+.qoder/
 
 # Build artifacts
 dist

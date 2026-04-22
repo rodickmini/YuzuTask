@@ -4,10 +4,11 @@ import { DEFAULT_SETTINGS } from '../types';
 import * as storage from '../utils/storage';
 import * as petStorage from '../utils/petStorage';
 import type { PetState } from '../utils/petStorage';
+import { PET_CONFIG } from '../constants';
 
 const DEFAULT_PET_STATE: PetState = {
-  foodCount: 3,
-  satiety: 80,
+  foodCount: PET_CONFIG.INITIAL_FOOD_COUNT,
+  satiety: PET_CONFIG.INITIAL_SATIETY,
   lastFeedAt: new Date().toISOString(),
   lastDecayAt: new Date().toISOString(),
 };
@@ -24,6 +25,7 @@ interface AppState {
   selectedTag: string | null;
   isSidebarVisible: boolean;
   trash: DeletedItem[];
+  searchQuery: string;
 }
 
 export type Action =
@@ -33,6 +35,7 @@ export type Action =
   | { type: 'DELETE_TASK'; payload: string }
   | { type: 'SET_WORKLOGS'; payload: WorkLog[] }
   | { type: 'ADD_WORKLOG'; payload: WorkLog }
+  | { type: 'UPDATE_WORKLOG'; payload: WorkLog }
   | { type: 'DELETE_WORKLOG'; payload: string }
   | { type: 'SET_POMODORO_SESSIONS'; payload: PomodoroSession[] }
   | { type: 'SET_SETTINGS'; payload: UserSettings }
@@ -48,7 +51,8 @@ export type Action =
   | { type: 'MOVE_TO_TRASH'; payload: DeletedItem }
   | { type: 'RESTORE_FROM_TRASH'; payload: string }
   | { type: 'PERMANENT_DELETE'; payload: string }
-  | { type: 'EMPTY_TRASH' };
+  | { type: 'EMPTY_TRASH' }
+  | { type: 'SET_SEARCH_QUERY'; payload: string };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -64,6 +68,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, workLogs: action.payload };
     case 'ADD_WORKLOG':
       return { ...state, workLogs: [...state.workLogs, action.payload] };
+    case 'UPDATE_WORKLOG':
+      return { ...state, workLogs: state.workLogs.map(l => l.id === action.payload.id ? action.payload : l) };
     case 'DELETE_WORKLOG':
       return { ...state, workLogs: state.workLogs.filter(l => l.id !== action.payload) };
     case 'SET_POMODORO_SESSIONS':
@@ -87,7 +93,7 @@ function reducer(state: AppState, action: Action): AppState {
         petState: {
           ...state.petState,
           foodCount: state.petState.foodCount - 1,
-          satiety: Math.min(100, state.petState.satiety + 20),
+          satiety: Math.min(PET_CONFIG.MAX_SATIETY, state.petState.satiety + PET_CONFIG.FEED_SATIETY_INCREMENT),
           lastFeedAt: new Date().toISOString(),
         },
       };
@@ -105,6 +111,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, trash: state.trash.filter(item => item.id !== action.payload) };
     case 'EMPTY_TRASH':
       return { ...state, trash: [] };
+    case 'SET_SEARCH_QUERY':
+      return { ...state, searchQuery: action.payload };
     default:
       return state;
   }
@@ -122,6 +130,7 @@ const initialState: AppState = {
   selectedTag: null,
   isSidebarVisible: true,
   trash: [],
+  searchQuery: '',
 };
 
 interface AppContextType {
@@ -141,7 +150,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const tasks = await storage.getTasks();
       dispatch({ type: 'SET_TASKS', payload: tasks });
-    } catch (err) {
+    } catch (_err) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh tasks' });
     }
   }, []);
@@ -150,7 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const logs = await storage.getWorkLogs();
       dispatch({ type: 'SET_WORKLOGS', payload: logs });
-    } catch (err) {
+    } catch (_err) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh work logs' });
     }
   }, []);
@@ -159,7 +168,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const sessions = await storage.getPomodoroSessions();
       dispatch({ type: 'SET_POMODORO_SESSIONS', payload: sessions });
-    } catch (err) {
+    } catch (_err) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to refresh pomodoro sessions' });
     }
   }, []);
@@ -181,7 +190,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'SET_POMODORO_SESSIONS', payload: pomodoroSessions });
         dispatch({ type: 'SET_PET_STATE', payload: loadedPetState });
         dispatch({ type: 'SET_TRASH', payload: trash });
-      } catch (err) {
+      } catch (_err) {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false });

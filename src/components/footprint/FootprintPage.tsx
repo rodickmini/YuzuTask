@@ -9,6 +9,18 @@ import Tag from '../ui/Tag';
 import ContributionGraph from './ContributionGraph';
 import { fadeIn, listItem } from '../ui/animations';
 
+interface TimelineItem {
+  timestamp: number;
+  time: string;
+  type: 'task' | 'worklog' | 'pomodoro';
+  id: string;
+  title: string;
+  subtitle?: string;
+  duration?: number;
+  tags?: string[];
+  sessionType?: 'focus' | 'break';
+}
+
 export default function FootprintPage() {
   const { state } = useAppState();
   const { t } = useTranslation();
@@ -59,86 +71,56 @@ export default function FootprintPage() {
     return { activeDays: activeDays.size, streak, totalTasks: completedTasks.length };
   }, [state.tasks, state.workLogs]);
 
-  // Build timeline for selected date, sorted by time desc
-  const timeline = useMemo(() => {
+  // Build timeline data for selected date
+  const timeline = useMemo<TimelineItem[]>(() => {
     if (!selectedDate) return [];
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const items: TimelineItem[] = [];
 
-    const items: { timestamp: number; time: string; el: JSX.Element }[] = [];
-
-    // Completed tasks — use completedAt
     state.tasks
       .filter(t => t.completedAt && format(new Date(t.completedAt!), 'yyyy-MM-dd') === dateStr)
       .forEach(task => {
         const dt = new Date(task.completedAt!);
-        const ts = dt.getTime();
         items.push({
-          timestamp: ts,
+          timestamp: dt.getTime(),
           time: format(dt, 'HH:mm'),
-          el: (
-            <div key={task.id} className="flex items-start gap-2">
-              <Check size={14} className="text-mint mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-text-main">{task.title}</p>
-                {task.tags.length > 0 && (
-                  <div className="flex gap-1 mt-1 flex-wrap">
-                    {task.tags.map(tag => <Tag key={tag} label={tag} />)}
-                  </div>
-                )}
-              </div>
-            </div>
-          ),
+          type: 'task',
+          id: task.id,
+          title: task.title,
+          tags: task.tags,
         });
       });
 
-    // Work logs — use createdAt
     state.workLogs
       .filter(l => l.date === dateStr)
       .forEach(log => {
         const dt = new Date(log.createdAt);
-        const ts = dt.getTime();
         items.push({
-          timestamp: ts,
+          timestamp: dt.getTime(),
           time: format(dt, 'HH:mm'),
-          el: (
-            <div key={log.id} className="flex items-start gap-2">
-              <Clock size={14} className="text-cream mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-text-main">{log.content}</p>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-xs text-text-sub">{formatDuration(log.durationMinutes)}</span>
-                  {log.tags.map(tag => <Tag key={tag} label={tag} />)}
-                </div>
-              </div>
-            </div>
-          ),
+          type: 'worklog',
+          id: log.id,
+          title: log.content,
+          duration: log.durationMinutes,
+          tags: log.tags,
         });
       });
 
-    // Pomodoro sessions — use startedAt
     state.pomodoroSessions
       .filter(s => format(new Date(s.startedAt), 'yyyy-MM-dd') === dateStr)
       .forEach(session => {
         const dt = new Date(session.startedAt);
-        const ts = dt.getTime();
         items.push({
-          timestamp: ts,
+          timestamp: dt.getTime(),
           time: format(dt, 'HH:mm'),
-          el: (
-            <div key={session.id} className="flex items-center gap-2">
-              <Coffee size={14} className="text-primary flex-shrink-0" />
-              <div className="flex-1">
-                <span className="text-sm text-text-main">
-                  {session.type === 'focus' ? t('pomodoro.focusComplete') : t('pomodoro.breakTitle')}
-                </span>
-                <span className="text-xs text-text-sub ml-2">{formatDuration(session.durationMinutes)}</span>
-              </div>
-            </div>
-          ),
+          type: 'pomodoro',
+          id: session.id,
+          title: session.type === 'focus' ? t('pomodoro.focusComplete') : t('pomodoro.breakTitle'),
+          duration: session.durationMinutes,
+          sessionType: session.type,
         });
       });
 
-    // Sort by timestamp descending (most recent first)
     items.sort((a, b) => b.timestamp - a.timestamp);
     return items;
   }, [selectedDate, state.tasks, state.workLogs, state.pomodoroSessions, t]);
@@ -203,9 +185,9 @@ export default function FootprintPage() {
 
               {timeline.length > 0 ? (
                 <div className="space-y-2">
-                  {timeline.map((item, idx) => (
+                  {timeline.map((item) => (
                     <motion.div
-                      key={idx}
+                      key={item.id}
                       variants={listItem}
                       initial="initial"
                       animate="animate"
@@ -214,7 +196,42 @@ export default function FootprintPage() {
                       <span className="text-xs text-text-sub/60 w-10 flex-shrink-0 pt-0.5 tabular-nums">
                         {item.time}
                       </span>
-                      <div className="flex-1 min-w-0">{item.el}</div>
+                      <div className="flex-1 min-w-0">
+                        {item.type === 'task' && (
+                          <div className="flex items-start gap-2">
+                            <Check size={14} className="text-mint mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-text-main">{item.title}</p>
+                              {item.tags && item.tags.length > 0 && (
+                                <div className="flex gap-1 mt-1 flex-wrap">
+                                  {item.tags.map(tag => <Tag key={tag} label={tag} />)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {item.type === 'worklog' && (
+                          <div className="flex items-start gap-2">
+                            <Clock size={14} className="text-cream mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-text-main">{item.title}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className="text-xs text-text-sub">{formatDuration(item.duration || 0)}</span>
+                                {item.tags?.map(tag => <Tag key={tag} label={tag} />)}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {item.type === 'pomodoro' && (
+                          <div className="flex items-center gap-2">
+                            <Coffee size={14} className="text-primary flex-shrink-0" />
+                            <div className="flex-1">
+                              <span className="text-sm text-text-main">{item.title}</span>
+                              <span className="text-xs text-text-sub ml-2">{formatDuration(item.duration || 0)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   ))}
                 </div>

@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw, Trash2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useAppState } from '../../store';
 import { useTranslation } from '../../i18n';
-import * as storage from '../../utils/storage';
-import { showToast } from '../ui/Toast';
+import * as trashService from '../../services/trashService';
 import { listItem, fadeIn } from '../ui/animations';
+import { TRASH_CONFIG } from '../../constants';
+import { useConfirm } from '../../hooks/useConfirm';
 import type { Task, WorkLog } from '../../types';
 
 export default function TrashView() {
@@ -16,57 +17,34 @@ export default function TrashView() {
   const workLogItems = useMemo(() => state.trash.filter(i => i.type === 'worklog'), [state.trash]);
 
   const getDaysRemaining = (deletedAt: string) => {
-    const days = 30 - Math.floor((Date.now() - new Date(deletedAt).getTime()) / (24 * 60 * 60 * 1000));
+    const days = TRASH_CONFIG.AUTO_PURGE_DAYS - Math.floor((Date.now() - new Date(deletedAt).getTime()) / (24 * 60 * 60 * 1000));
     return Math.max(0, days);
   };
 
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const serviceCtx = { dispatch, tasks: state.tasks, workLogs: state.workLogs, trash: state.trash };
+
   const handleRestore = async (item: typeof state.trash[number]) => {
     const name = item.type === 'task' ? (item.data as Task).title : (item.data as WorkLog).content;
-    if (!confirm(t('trash.confirmRestore', { name }))) return;
-
-    // Restore item to active list
-    if (item.type === 'task') {
-      const task = item.data as Task;
-      // Only restore if not already present
-      if (!state.tasks.find(t => t.id === task.id)) {
-        dispatch({ type: 'ADD_TASK', payload: task });
-        const updated = [...state.tasks, task];
-        await storage.saveTasks(updated);
-      }
-    } else {
-      const log = item.data as WorkLog;
-      if (!state.workLogs.find(l => l.id === log.id)) {
-        dispatch({ type: 'ADD_WORKLOG', payload: log });
-        const updated = [...state.workLogs, log];
-        await storage.saveWorkLogs(updated);
-      }
-    }
-
-    // Remove from trash
-    dispatch({ type: 'RESTORE_FROM_TRASH', payload: item.id });
-    const updatedTrash = state.trash.filter(i => i.id !== item.id);
-    await storage.saveTrash(updatedTrash);
-    showToast(t('trash.restored'));
+    const confirmed = await confirm({ title: t('trash.restore'), message: t('trash.confirmRestore', { name }) });
+    if (!confirmed) return;
+    await trashService.restoreItem(serviceCtx, item);
   };
 
   const handlePermanentDelete = async (id: string) => {
     const item = state.trash.find(i => i.id === id);
     if (!item) return;
     const name = item.type === 'task' ? (item.data as Task).title : (item.data as WorkLog).content;
-    if (!confirm(t('trash.confirmPermanentDelete', { name }))) return;
-
-    dispatch({ type: 'PERMANENT_DELETE', payload: id });
-    const updatedTrash = state.trash.filter(i => i.id !== id);
-    await storage.saveTrash(updatedTrash);
-    showToast(t('trash.permanentlyDeleted'));
+    const confirmed = await confirm({ title: t('trash.permanentDelete'), message: t('trash.confirmPermanentDelete', { name }), variant: 'danger' });
+    if (!confirmed) return;
+    await trashService.permanentDelete(serviceCtx, id);
   };
 
   const handleEmptyTrash = async () => {
-    if (!confirm(t('trash.confirmEmptyTrash'))) return;
-
-    dispatch({ type: 'EMPTY_TRASH' });
-    await storage.saveTrash([]);
-    showToast(t('trash.emptied'));
+    const confirmed = await confirm({ title: t('trash.emptyTrash'), message: t('trash.confirmEmptyTrash'), variant: 'danger' });
+    if (!confirmed) return;
+    await trashService.emptyTrash(serviceCtx);
   };
 
   const renderItem = (item: typeof state.trash[number]) => {
@@ -170,6 +148,7 @@ export default function TrashView() {
           </>
         )}
       </div>
+      <ConfirmDialog />
     </div>
   );
 }

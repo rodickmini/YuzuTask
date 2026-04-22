@@ -1,15 +1,14 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Clock, Calendar } from 'lucide-react';
-import type { WorkLog, DeletedItem } from '../../types';
+import { Plus, Trash2, Clock, Calendar, Pencil } from 'lucide-react';
+import type { WorkLog } from '../../types';
 import WorkLogForm from './WorkLogForm';
 import CalendarView from './CalendarView';
 import Tag from '../ui/Tag';
 import Modal from '../ui/Modal';
 import { listItem, expandCollapse, fadeIn } from '../ui/animations';
 import { useAppState } from '../../store';
-import * as storage from '../../utils/storage';
-import { showToast } from '../ui/Toast';
+import * as worklogService from '../../services/worklogService';
 import { formatDuration, formatRelativeDate } from '../../utils/date';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +16,7 @@ export default function WorkLogList() {
   const { state, dispatch } = useAppState();
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
+  const [editingLog, setEditingLog] = useState<WorkLog | undefined>();
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -31,8 +31,12 @@ export default function WorkLogList() {
     if (selectedDate) {
       logs = logs.filter(l => l.date === selectedDate);
     }
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      logs = logs.filter(l => l.content.toLowerCase().includes(q));
+    }
     return logs;
-  }, [state.workLogs, selectedDate]);
+  }, [state.workLogs, selectedDate, state.searchQuery]);
 
   const groupedLogs = useMemo(() => {
     const groups = new Map<string, WorkLog[]>();
@@ -44,29 +48,21 @@ export default function WorkLogList() {
     return Array.from(groups.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [filteredLogs]);
 
+  const serviceCtx = { dispatch, workLogs: state.workLogs, trash: state.trash };
+
   const handleSave = async (log: WorkLog) => {
-    dispatch({ type: 'ADD_WORKLOG', payload: log });
-    const logs = [...state.workLogs, log];
-    await storage.saveWorkLogs(logs);
+    const isNew = !state.workLogs.find(l => l.id === log.id);
+    if (isNew) {
+      await worklogService.addWorkLog(serviceCtx, log);
+    } else {
+      await worklogService.updateWorkLog(serviceCtx, log);
+    }
     setShowForm(false);
-    showToast(t('worklog.added'));
+    setEditingLog(undefined);
   };
 
   const handleDelete = async (id: string) => {
-    const log = state.workLogs.find(l => l.id === id);
-    if (!log) return;
-
-    // Move to trash
-    const trashItem: DeletedItem = { id: log.id, type: 'worklog', data: log, deletedAt: new Date().toISOString() };
-    dispatch({ type: 'MOVE_TO_TRASH', payload: trashItem });
-    const updatedTrash = [trashItem, ...state.trash];
-    await storage.saveTrash(updatedTrash);
-
-    // Remove from active logs
-    dispatch({ type: 'DELETE_WORKLOG', payload: id });
-    const logs = state.workLogs.filter(l => l.id !== id);
-    await storage.saveWorkLogs(logs);
-    showToast(t('worklog.deleted'));
+    await worklogService.deleteWorkLog(serviceCtx, id);
   };
 
   const todayMinutes = state.workLogs
@@ -95,7 +91,7 @@ export default function WorkLogList() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowForm(true)}
+            onClick={() => { setEditingLog(undefined); setShowForm(true); }}
             className="flex items-center gap-1 px-3 py-1.5 bg-mint text-white rounded-xl text-xs font-medium shadow-soft hover:bg-mint/90 transition-colors"
           >
             <Plus size={14} /> {t('worklog.record')}
@@ -174,13 +170,22 @@ export default function WorkLogList() {
                         ))}
                       </div>
                     </div>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleDelete(log.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-accent/10 transition-all"
-                    >
-                      <Trash2 size={14} className="text-text-sub hover:text-accent" />
-                    </motion.button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => { setEditingLog(log); setShowForm(true); }}
+                        className="p-1 rounded-lg hover:bg-primary/10"
+                      >
+                        <Pencil size={14} className="text-text-sub hover:text-primary" />
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDelete(log.id)}
+                        className="p-1 rounded-lg hover:bg-accent/10"
+                      >
+                        <Trash2 size={14} className="text-text-sub hover:text-accent" />
+                      </motion.button>
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -201,16 +206,18 @@ export default function WorkLogList() {
         )}
       </div>
 
-      {/* Add form modal */}
+      {/* Form modal */}
       <Modal
         isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        title={t('worklog.addWorkLog')}
+        onClose={() => { setShowForm(false); setEditingLog(undefined); }}
+        title={editingLog ? t('worklog.editWorkLog') : t('worklog.addWorkLog')}
       >
         <WorkLogForm
+          key={editingLog?.id || 'new'}
           tags={allTags}
+          initialData={editingLog}
           onSave={handleSave}
-          onCancel={() => setShowForm(false)}
+          onCancel={() => { setShowForm(false); setEditingLog(undefined); }}
         />
       </Modal>
     </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../i18n';
+import { getTagBadgeColor } from '../../constants';
 
 interface TagProps {
   label: string;
@@ -9,20 +10,10 @@ interface TagProps {
   color?: string;
 }
 
-export const TAG_COLORS: Record<string, string> = {
-  'tag.work': 'bg-primary-light/40 text-primary-dark',
-  'tag.dev': 'bg-mint-light/40 text-emerald-700',
-  'tag.meeting': 'bg-cream-light/40 text-amber-700',
-  'tag.doc': 'bg-accent-light/40 text-rose-600',
-  'tag.comm': 'bg-purple-100 text-purple-600',
-  'tag.learn': 'bg-blue-100 text-blue-600',
-  'tag.life': 'bg-pink-100 text-pink-600',
-};
-
 export default function Tag({ label, selected, onClick, onRemove, color }: TagProps) {
   const { t } = useTranslation();
   const displayLabel = label.startsWith('tag.') ? t(label, label) : label;
-  const colorClass = color || TAG_COLORS[label] || 'bg-warm-dark text-text-sub';
+  const colorClass = color || getTagBadgeColor(label);
 
   return (
     <motion.span

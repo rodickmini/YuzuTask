@@ -4,7 +4,7 @@ import { Copy, FileText, Settings, Check } from 'lucide-react';
 import { useAppState } from '../../store';
 import { generateWeeklyReport } from '../../utils/report';
 import { format } from 'date-fns';
-import { getDateFnsLocale } from '../../utils/date';
+import { getDateFnsLocale, getStartOfCurrentWeek } from '../../utils/date';
 import { useTranslation } from '../../i18n';
 import { showToast } from '../ui/Toast';
 import Button from '../ui/Button';
@@ -26,15 +26,12 @@ export default function WeeklyReport() {
   const [reportTime, setReportTime] = useState(state.settings.weeklyReport.time);
   const [template, setTemplate] = useState(state.settings.weeklyReport.template);
 
+  const weekMonday = useMemo(() => getStartOfCurrentWeek(), []);
+
   const weekLabel = useMemo(() => {
-    const now = new Date();
-    const day = now.getDay();
-    const mondayOffset = day === 0 ? -6 : 1 - day;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    return `${format(monday, 'MMM d', { locale: getDateFnsLocale() })} - ${format(sunday, 'MMM d', { locale: getDateFnsLocale() })}`;
+    const sunday = new Date(weekMonday);
+    sunday.setDate(weekMonday.getDate() + 6);
+    return `${format(weekMonday, 'MMM d', { locale: getDateFnsLocale() })} - ${format(sunday, 'MMM d', { locale: getDateFnsLocale() })}`;
   }, []);
 
   const handleGenerate = () => {
@@ -103,29 +100,13 @@ export default function WeeklyReport() {
         <div className="grid grid-cols-3 gap-3 text-center">
           <div>
             <div className="text-2xl font-light text-primary">
-              {state.workLogs.filter(l => {
-                const now = new Date();
-                const day = now.getDay();
-                const mondayOffset = day === 0 ? -6 : 1 - day;
-                const monday = new Date(now);
-                monday.setDate(now.getDate() + mondayOffset);
-                monday.setHours(0, 0, 0, 0);
-                return new Date(l.date) >= monday;
-              }).length}
+              {state.workLogs.filter(l => new Date(l.date) >= weekMonday).length}
             </div>
             <div className="text-xs text-text-sub">{t('weekly.workLogs')}</div>
           </div>
           <div>
             <div className="text-2xl font-light text-mint">
-              {state.tasks.filter(t => {
-                const now = new Date();
-                const day = now.getDay();
-                const mondayOffset = day === 0 ? -6 : 1 - day;
-                const monday = new Date(now);
-                monday.setDate(now.getDate() + mondayOffset);
-                monday.setHours(0, 0, 0, 0);
-                return t.status === 'done' && new Date(t.completedAt || t.createdAt) >= monday;
-              }).length}
+              {state.tasks.filter(t => t.status === 'done' && new Date(t.completedAt || t.createdAt) >= weekMonday).length}
             </div>
             <div className="text-xs text-text-sub">{t('weekly.completedTasks')}</div>
           </div>
@@ -133,15 +114,7 @@ export default function WeeklyReport() {
             <div className="text-2xl font-light text-cream">
               {(() => {
                 const total = state.workLogs
-                  .filter(l => {
-                    const now = new Date();
-                    const day = now.getDay();
-                    const mondayOffset = day === 0 ? -6 : 1 - day;
-                    const monday = new Date(now);
-                    monday.setDate(now.getDate() + mondayOffset);
-                    monday.setHours(0, 0, 0, 0);
-                    return new Date(l.date) >= monday;
-                  })
+                  .filter(l => new Date(l.date) >= weekMonday)
                   .reduce((s, l) => s + l.durationMinutes, 0);
                 return total >= 60 ? `${Math.round(total / 60 * 10) / 10}h` : `${total}m`;
               })()}

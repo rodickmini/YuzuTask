@@ -7,18 +7,14 @@ import cuteCatWorksData from '../../assets/animations/CuteCatWorks.json';
 import happyDogData from '../../assets/animations/HappyDog.json';
 import { useAppState } from '../../store';
 import * as petStorage from '../../utils/petStorage';
+import { useTranslation } from '../../i18n';
 
-const pets = [
-  { data: catPlayingData, name: '猫咪酱', bubble: '正在梦中捉小鱼~', isDog: false },
-  { data: loaderCatData, name: '打工猫', bubble: '努力搬砖中喵~', isDog: false },
-  { data: cuteCatWorksData, name: '专注猫', bubble: '认真工作中勿扰！', isDog: false },
-  { data: happyDogData, name: '快乐狗', bubble: '今天也要开心汪~', isDog: true },
+const petAnimations = [
+  { data: catPlayingData, isDog: false },
+  { data: loaderCatData, isDog: false },
+  { data: cuteCatWorksData, isDog: false },
+  { data: happyDogData, isDog: true },
 ];
-
-const hoverLines = ['摸摸我~', '嘿嘿~', '要抱抱！', '别走嘛~', '(*≧▽≦)'];
-const clickLines = ['喵~', '汪汪！', '再摸就生气了哦', '好舒服~', '还要还要！', '❤️'];
-const hungryLines = ['肚子咕咕叫...', '好饿...', '有吃的吗...', '想吃小鱼干...'];
-const happyLines = ['今天好开心~', '吃饱饱！', '幸福满满~', '谢谢投喂！'];
 
 const particles = ['❤️', '⭐', '✨', '💛', '🌟'];
 
@@ -32,7 +28,7 @@ function getSatietyColor(satiety: number): string {
   return 'bg-accent';
 }
 
-function getBubbleText(satiety: number, defaultBubble: string): string {
+function getBubbleText(satiety: number, defaultBubble: string, hungryLines: string[], happyLines: string[]): string {
   if (satiety < 30) return randomPick(hungryLines);
   if (satiety > 80) return randomPick(happyLines);
   return defaultBubble;
@@ -47,21 +43,28 @@ interface FloatingParticle {
 export default function PetMascot() {
   const { state, dispatch } = useAppState();
   const { petState } = state;
+  const { t } = useTranslation();
 
-  const [index, setIndex] = useState(() => Math.floor(Math.random() * pets.length));
+  const petBubbles = t('pet.bubbles', { returnObjects: true }) as string[];
+  const hoverLines = t('pet.hover', { returnObjects: true }) as string[];
+  const clickLines = t('pet.click', { returnObjects: true }) as string[];
+  const hungryLines = t('pet.hungry', { returnObjects: true }) as string[];
+  const happyLines = t('pet.happy', { returnObjects: true }) as string[];
+
+  const [index, setIndex] = useState(() => Math.floor(Math.random() * petAnimations.length));
   const [isHovered, setIsHovered] = useState(false);
   const [bubbleOverride, setBubbleOverride] = useState<string | null>(null);
   const [floatingParticles, setFloatingParticles] = useState<FloatingParticle[]>([]);
   const [isFeeding, setIsFeeding] = useState(false);
 
-  const pet = pets[index];
+  const pet = petAnimations[index];
   const foodEmoji = pet.isDog ? '🦴' : '🐟';
 
   const shuffle = useCallback(() => {
     let next: number;
     do {
-      next = Math.floor(Math.random() * pets.length);
-    } while (next === index && pets.length > 1);
+      next = Math.floor(Math.random() * petAnimations.length);
+    } while (next === index && petAnimations.length > 1);
     setIndex(next);
     setBubbleOverride(null);
   }, [index]);
@@ -104,9 +107,9 @@ export default function PetMascot() {
       setIsFeeding(false);
       setBubbleOverride(null);
     }, 1500);
-  }, [petState, dispatch]);
+  }, [petState, dispatch, happyLines]);
 
-  const displayBubble = bubbleOverride ?? getBubbleText(petState.satiety, pet.bubble);
+  const displayBubble = bubbleOverride ?? getBubbleText(petState.satiety, petBubbles[index] ?? '', hungryLines, happyLines);
 
   return (
     <div className="bg-white rounded-3xl border border-warm-dark/50 p-3 relative">
@@ -118,7 +121,7 @@ export default function PetMascot() {
         className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 text-[11px] text-primary-dark bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors z-10"
       >
         <span>🔀</span>
-        换一只
+        {t('pet.changePet')}
       </motion.button>
 
       <AnimatePresence mode="wait">
@@ -177,7 +180,7 @@ export default function PetMascot() {
       {/* Satiety bar */}
       <div className="mt-2 px-1">
         <div className="flex items-center gap-1.5 mb-1">
-          <span className="text-[10px] text-text-sub">饱腹度</span>
+          <span className="text-[10px] text-text-sub">{t('pet.satiety')}</span>
           <span className="text-[10px] font-medium text-text-main">{petState.satiety}%</span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -207,7 +210,7 @@ export default function PetMascot() {
           }`}
         >
           <span>🍽️</span>
-          投喂
+          {t('pet.feed')}
         </motion.button>
       </div>
     </div>

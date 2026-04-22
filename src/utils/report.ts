@@ -1,14 +1,7 @@
 import type { WorkLog, Task, WeeklyReportConfig } from '../types';
 import { format, parseISO } from 'date-fns';
 import i18n from '../i18n';
-import { getWeekDays, toISODateString, formatDuration, getDateFnsLocale } from './date';
-
-function getDateFormat(): string {
-  const lang = i18n.language;
-  if (lang.startsWith('zh')) return 'M月d日 EEEE';
-  if (lang.startsWith('ja')) return 'M月d日(E)';
-  return 'MMM d, EEEE';
-}
+import { getWeekDays, toISODateString, formatDuration, getDateFnsLocale, getDateFormat } from './date';
 
 export function generateWeeklyReport(
   workLogs: WorkLog[],

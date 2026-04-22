@@ -5,11 +5,13 @@ export interface PetState {
   lastDecayAt: string;
 }
 
+import { PET_CONFIG } from '../constants';
+
 const KEY = 'yuzutask_pet_state';
 
 const DEFAULT_PET_STATE: PetState = {
-  foodCount: 3,
-  satiety: 80,
+  foodCount: PET_CONFIG.INITIAL_FOOD_COUNT,
+  satiety: PET_CONFIG.INITIAL_SATIETY,
   lastFeedAt: new Date().toISOString(),
   lastDecayAt: new Date().toISOString(),
 };
@@ -41,7 +43,7 @@ async function set<T>(key: string, value: T): Promise<void> {
 function calcDecay(satiety: number, lastDecayAt: string): { satiety: number; lastDecayAt: string } {
   const elapsed = Date.now() - new Date(lastDecayAt).getTime();
   const hours = elapsed / (1000 * 60 * 60);
-  const decay = Math.floor(hours * 5);
+  const decay = Math.floor(hours * PET_CONFIG.DECAY_PER_HOUR);
   if (decay <= 0) return { satiety, lastDecayAt };
   return {
     satiety: Math.max(0, satiety - decay),
@@ -72,7 +74,7 @@ export async function feedPet(current: PetState): Promise<PetState | null> {
   const updated: PetState = {
     ...current,
     foodCount: current.foodCount - 1,
-    satiety: Math.min(100, current.satiety + 20),
+    satiety: Math.min(PET_CONFIG.MAX_SATIETY, current.satiety + PET_CONFIG.FEED_SATIETY_INCREMENT),
     lastFeedAt: new Date().toISOString(),
   };
   await savePetState(updated);

@@ -6,6 +6,7 @@ import * as storage from '../utils/storage';
 import * as petStorage from '../utils/petStorage';
 import { showToast } from '../components/ui/Toast';
 import { toISODateString } from '../utils/date';
+import { PET_CONFIG } from '../constants';
 
 // Persisted state shape (matches storage.ts PomodoroState)
 interface SavedState {
@@ -77,33 +78,43 @@ export function usePomodoro() {
     setIsPaused(false);
     await storage.savePomodoroState(null);
 
-    const session: PomodoroSession = {
-      id: storage.generateId(),
-      taskId: selectedTaskId,
-      startedAt: new Date(startedAtRef.current).toISOString(),
-      endedAt: new Date().toISOString(),
-      durationMinutes: settings.pomodoroFocusMinutes,
-      type: 'focus',
-    };
-    const sessions = await storage.getPomodoroSessions();
-    await storage.savePomodoroSessions([...sessions, session]);
-    dispatch({ type: 'SET_POMODORO_SESSIONS', payload: [...sessions, session] });
+    // Core: save pomodoro session
+    try {
+      const session: PomodoroSession = {
+        id: storage.generateId(),
+        taskId: selectedTaskId,
+        startedAt: new Date(startedAtRef.current).toISOString(),
+        endedAt: new Date().toISOString(),
+        durationMinutes: settings.pomodoroFocusMinutes,
+        type: 'focus',
+      };
+      const sessions = await storage.getPomodoroSessions();
+      await storage.savePomodoroSessions([...sessions, session]);
+      dispatch({ type: 'SET_POMODORO_SESSIONS', payload: [...sessions, session] });
+    } catch (err) {
+      console.error('Failed to save pomodoro session:', err);
+    }
 
-    if (selectedTaskId) {
-      const task = state.tasks.find(t => t.id === selectedTaskId);
-      if (task) {
-        const log: WorkLog = {
-          id: storage.generateId(),
-          content: `${t('pomodoro.focusComplete')}${task.title}`,
-          tags: task.tags,
-          durationMinutes: settings.pomodoroFocusMinutes,
-          date: toISODateString(new Date()),
-          relatedTaskId: selectedTaskId,
-          createdAt: new Date().toISOString(),
-        };
-        dispatch({ type: 'ADD_WORKLOG', payload: log });
-        await storage.saveWorkLogs([...state.workLogs, log]);
+    // Core: auto-generate work log
+    try {
+      if (selectedTaskId) {
+        const task = state.tasks.find(t => t.id === selectedTaskId);
+        if (task) {
+          const log: WorkLog = {
+            id: storage.generateId(),
+            content: `${t('pomodoro.focusComplete')}${task.title}`,
+            tags: task.tags,
+            durationMinutes: settings.pomodoroFocusMinutes,
+            date: toISODateString(new Date()),
+            relatedTaskId: selectedTaskId,
+            createdAt: new Date().toISOString(),
+          };
+          dispatch({ type: 'ADD_WORKLOG', payload: log });
+          await storage.saveWorkLogs([...state.workLogs, log]);
+        }
       }
+    } catch (err) {
+      console.error('Failed to save work log:', err);
     }
 
     const newCount = completedCount + 1;
@@ -119,9 +130,15 @@ export function usePomodoro() {
     cancelAlarm('pomodoro-end');
     setAlarm('pomodoro-break-end', breakMinutes * 60);
     showToast(t('pomodoro.focusDone'));
-    dispatch({ type: 'ADD_FOOD', payload: 2 });
-    const updatedPet = await petStorage.awardFood(2, state.petState);
-    await petStorage.savePetState(updatedPet);
+
+    // Non-core: pet reward (failure should not block main flow)
+    try {
+      dispatch({ type: 'ADD_FOOD', payload: PET_CONFIG.POMODORO_FOOD_REWARD });
+      const updatedPet = await petStorage.awardFood(PET_CONFIG.POMODORO_FOOD_REWARD, state.petState);
+      await petStorage.savePetState(updatedPet);
+    } catch (err) {
+      console.error('Failed to award pet food:', err);
+    }
   }, [selectedTaskId, settings, state.tasks, state.workLogs, state.petState, completedCount, dispatch, stopInterval, setAlarm, cancelAlarm, t]);
 
   const completeBreak = useCallback(async () => {
@@ -132,7 +149,11 @@ export function usePomodoro() {
     setTotalSeconds(settings.pomodoroFocusMinutes * 60);
     setRemainingSeconds(settings.pomodoroFocusMinutes * 60);
     cancelAlarm('pomodoro-break-end');
-    await storage.savePomodoroState(null);
+    try {
+      await storage.savePomodoroState(null);
+    } catch (err) {
+      console.error('Failed to clear pomodoro state:', err);
+    }
     showToast(t('pomodoro.breakDone'));
   }, [settings.pomodoroFocusMinutes, stopInterval, cancelAlarm, t]);
 

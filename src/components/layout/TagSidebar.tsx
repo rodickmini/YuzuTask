@@ -18,18 +18,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAppState } from '../../store';
 import { useTranslation } from '../../i18n';
 import * as storage from '../../utils/storage';
+import { getTagSidebarColor } from '../../constants';
+import { useConfirm } from '../../hooks/useConfirm';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
-
-const TAG_COLORS: Record<string, string> = {
-  'tag.work': 'text-[#5A9BAC]',
-  'tag.dev': 'text-[#6DB885]',
-  'tag.meeting': 'text-[#E0A060]',
-  'tag.doc': 'text-[#D08080]',
-  'tag.comm': 'text-purple-500',
-  'tag.learn': 'text-blue-500',
-  'tag.life': 'text-pink-500',
-};
 
 function SortableTagItem({ tag, isActive, displayName, count, tagColor, onSelect }: {
   tag: string;
@@ -69,6 +61,8 @@ export default function TagSidebar() {
   const { t } = useTranslation();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newTag, setNewTag] = useState('');
+
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -116,7 +110,11 @@ export default function TagSidebar() {
     const affectedTasks = state.tasks.filter(t => t.tags.includes(tag));
     if (affectedTasks.length > 0) {
       const displayName = tag.startsWith('tag.') ? t(tag, tag.replace('tag.', '')) : tag;
-      const confirmed = confirm(t('sidebar.deleteTagConfirm', { tag: displayName, count: affectedTasks.length }));
+      const confirmed = await confirm({
+        title: t('sidebar.deleteTag'),
+        message: t('sidebar.deleteTagConfirm', { tag: displayName, count: affectedTasks.length }),
+        variant: 'danger',
+      });
       if (!confirmed) return;
     }
 
@@ -186,7 +184,7 @@ export default function TagSidebar() {
           <SortableContext items={state.settings.customTags} strategy={verticalListSortingStrategy}>
             {allTags.map(tag => {
               const isActive = state.selectedTag === tag;
-              const tagColor = TAG_COLORS[tag] || 'text-gray-400';
+              const tagColor = getTagSidebarColor(tag);
               const displayName = tag.startsWith('tag.') ? t(tag, tag.replace('tag.', '')) : tag;
               const count = tagCounts.get(tag) || 0;
 
@@ -282,6 +280,7 @@ export default function TagSidebar() {
           </div>
         </div>
       </Modal>
+      <ConfirmDialog />
     </div>
   );
 }

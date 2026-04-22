@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, ChevronDown } from 'lucide-react';
 import { useAppState } from '../../store';
@@ -21,13 +21,13 @@ export default function PomodoroTimer() {
   const seconds = remainingSeconds % 60;
 
   const [encouragement, setEncouragement] = useState('');
+  const encouragements = useMemo(() => t('encouragements', { returnObjects: true }) as string[], [t]);
 
   useEffect(() => {
     if (isRunning && !isPaused) {
-      const list = t('encouragements', { returnObjects: true }) as string[];
-      setEncouragement(list[Math.floor(Math.random() * list.length)]);
+      setEncouragement(encouragements[Math.floor(Math.random() * encouragements.length)]);
     }
-  }, [isRunning, isPaused, t]);
+  }, [isRunning, isPaused, encouragements]);
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;

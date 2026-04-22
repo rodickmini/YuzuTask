@@ -73,8 +73,10 @@
     "filter": "Filter:",
     "clearFilter": "Clear",
     "added": "Work log added~",
+    "updated": "Work log updated~",
     "deleted": "Log deleted",
-    "addWorkLog": "Add Work Log"
+    "addWorkLog": "Add Work Log",
+    "editWorkLog": "Edit Work Log"
   },
   "pomodoro": {
     "title": "Pomodoro",
@@ -165,6 +167,12 @@
     "dataNotice": "All data is stored locally in your browser and will not be uploaded to any server",
     "clearDataConfirm": "Are you sure you want to clear all data? This action cannot be undone.",
     "clearData": "Clear All Data",
+    "exportData": "Export Data",
+    "importData": "Import Data",
+    "exportSuccess": "Data exported~",
+    "exportError": "Export failed",
+    "importSuccess": "Data imported, reloading~",
+    "importError": "Import failed, please check file format",
     "saveSettings": "Save Settings",
     "saved": "Settings saved~",
     "languageSection": "🌐 Language",
@@ -224,6 +232,23 @@
     "pomodoroMessage": "Focus time is up, take a break~",
     "breakTitle": "Break Over",
     "breakMessage": "Break time is over, time to focus!"
+  },
+  "search": {
+    "placeholder": "Search tasks and logs...",
+    "noResults": "No results found",
+    "tasks": "Task",
+    "workLogs": "Log"
+  },
+  "pet": {
+    "names": ["Kitty", "Worker Cat", "Focus Cat", "Happy Dog"],
+    "bubbles": ["Dreaming of little fish~", "Working hard meow~", "Busy working, do not disturb!", "Let's be happy today woof~"],
+    "hover": ["Pet me~", "Hehe~", "Give me a hug!", "Don't go~", "(*≧▽≦)"],
+    "click": ["Meow~", "Woof!", "Stop it, I'll get mad", "So comfy~", "More more!", "❤️"],
+    "hungry": ["Tummy rumbling...", "So hungry...", "Got any food?", "Want some fish..."],
+    "happy": ["So happy today~", "Full tummy!", "Feeling blessed~", "Thanks for the food!"],
+    "changePet": "Switch",
+    "satiety": "Fullness",
+    "feed": "Feed"
   },
   "trash": {
     "title": "Recently Deleted",

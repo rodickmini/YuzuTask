@@ -73,8 +73,10 @@
     "filter": "筛选：",
     "clearFilter": "清除",
     "added": "工作记录已添加~",
+    "updated": "工作记录已更新~",
     "deleted": "记录已删除",
-    "addWorkLog": "添加工作记录"
+    "addWorkLog": "添加工作记录",
+    "editWorkLog": "编辑工作记录"
   },
   "pomodoro": {
     "title": "番茄钟",
@@ -165,6 +167,12 @@
     "dataNotice": "所有数据保存在浏览器本地，不会上传到任何服务器",
     "clearDataConfirm": "确定要清除所有数据吗？此操作不可恢复。",
     "clearData": "清除所有数据",
+    "exportData": "导出数据",
+    "importData": "导入数据",
+    "exportSuccess": "数据已导出~",
+    "exportError": "导出失败",
+    "importSuccess": "数据已导入，即将刷新~",
+    "importError": "导入失败，请检查文件格式",
     "saveSettings": "保存设置",
     "saved": "设置已保存~",
     "languageSection": "🌐 语言",
@@ -224,6 +232,23 @@
     "pomodoroMessage": "专注时间结束啦，休息一下吧~",
     "breakTitle": "休息结束",
     "breakMessage": "休息够啦，继续专注吧~"
+  },
+  "search": {
+    "placeholder": "搜索任务和记录...",
+    "noResults": "没有找到相关内容",
+    "tasks": "任务",
+    "workLogs": "记录"
+  },
+  "pet": {
+    "names": ["猫咪酱", "打工猫", "专注猫", "快乐狗"],
+    "bubbles": ["正在梦中捉小鱼~", "努力搬砖中喵~", "认真工作中勿扰！", "今天也要开心汪~"],
+    "hover": ["摸摸我~", "嘿嘿~", "要抱抱！", "别走嘛~", "(*≧▽≦)"],
+    "click": ["喵~", "汪汪！", "再摸就生气了哦", "好舒服~", "还要还要！", "❤️"],
+    "hungry": ["肚子咕咕叫...", "好饿...", "有吃的吗...", "想吃小鱼干..."],
+    "happy": ["今天好开心~", "吃饱饱！", "幸福满满~", "谢谢投喂！"],
+    "changePet": "换一只",
+    "satiety": "饱腹度",
+    "feed": "投喂"
   },
   "trash": {
     "title": "最近删除",

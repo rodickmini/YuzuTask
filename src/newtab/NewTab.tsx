@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import { AppProvider, useAppState } from '../store';
+import type { AppView } from '../types';
 import { PomodoroProvider } from '../hooks/PomodoroContext';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import Header from '../components/layout/Header';
 import BottomBar from '../components/layout/BottomBar';
 import TagSidebar from '../components/layout/TagSidebar';
@@ -19,6 +21,7 @@ import { staggerContainer, staggerItem, pageTransition } from '../components/ui/
 
 function MainContent() {
   const { state, dispatch } = useAppState();
+  const [triggerNewTask, setTriggerNewTask] = useState(0);
 
   // Esc key to toggle sidebar
   useEffect(() => {
@@ -30,6 +33,26 @@ function MainContent() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [dispatch]);
+
+  const handleNavigate = useCallback(
+    (view: AppView) => {
+      dispatch({ type: 'SET_VIEW', payload: view });
+    },
+    [dispatch],
+  );
+
+  const handleNewTask = useCallback(() => {
+    dispatch({ type: 'SET_VIEW', payload: 'home' });
+    setTriggerNewTask(prev => prev + 1);
+  }, [dispatch]);
+
+  useKeyboardShortcuts({
+    onNavigate: handleNavigate,
+    onNewTask: handleNewTask,
+    onToggleSidebar: useCallback(() => dispatch({ type: 'TOGGLE_SIDEBAR' }), [dispatch]),
+  });
+
+  const toggleSidebar = useCallback(() => dispatch({ type: 'TOGGLE_SIDEBAR' }), [dispatch]);
 
   if (state.isLoading) {
     return (
@@ -45,11 +68,11 @@ function MainContent() {
 
   const showSidebar = state.isSidebarVisible && state.currentView === 'home';
 
-  const ToggleButton = () => (
+  const toggleButton = (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      onClick={() => dispatch({ type: 'TOGGLE_SIDEBAR' })}
+      onClick={toggleSidebar}
       className="flex items-center justify-center w-7 h-7 rounded-lg text-text-sub/50 hover:bg-black/[0.05] hover:text-text-sub transition-colors"
       title={state.isSidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
     >
@@ -100,7 +123,8 @@ function MainContent() {
               {/* Task List */}
               <div className="flex-1 min-w-0 p-3 sm:p-5 overflow-auto">
                 <TaskList
-                  sidebarToggleButton={<ToggleButton />}
+                  sidebarToggleButton={toggleButton}
+                  triggerNewTask={triggerNewTask}
                 />
               </div>
             </div>
