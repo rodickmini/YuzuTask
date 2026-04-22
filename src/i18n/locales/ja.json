@@ -9,7 +9,7 @@
   },
   "nav": {
     "home": "タスク",
-    "worklog": "記録",
+    "worklog": "ドキュメント",
     "weekly": "週報",
     "footprint": "活動履歴",
     "settings": "設定"
@@ -61,22 +61,31 @@
     }
   },
   "worklog": {
-    "title": "作業記録",
+    "title": "ドキュメント",
     "today": "今日",
     "contentPlaceholder": "何をしましたか...",
     "duration": "時間（分）",
     "date": "日付",
-    "record": "記録",
+    "record": "新規",
     "cancel": "キャンセル",
-    "emptyState": "作業記録がありません、記録しましょう~",
+    "emptyState": "ドキュメントがありません、書きましょう~",
     "emptyDay": "この日の記録はありません~",
     "filter": "絞り込み：",
     "clearFilter": "クリア",
-    "added": "作業記録を追加しました~",
-    "updated": "作業記録を更新しました~",
-    "deleted": "記録を削除しました",
-    "addWorkLog": "作業記録を追加",
-    "editWorkLog": "作業記録を編集"
+    "added": "ドキュメントを追加しました~",
+    "updated": "ドキュメントを更新しました~",
+    "deleted": "ドキュメントを削除しました",
+    "addWorkLog": "新規ドキュメント",
+    "editWorkLog": "ドキュメントを編集",
+    "back": "戻る",
+    "save": "保存",
+    "editorPlaceholder": "Markdownで書く...",
+    "emptyPreview": "書き始めるとここにプレビューが表示されます...",
+    "untitled": "無題ドキュメント",
+    "selectDoc": "ドキュメントを選択してください",
+    "noContent": "コンテンツがありません",
+    "editing": "編集中",
+    "preview": "プレビュー"
   },
   "pomodoro": {
     "title": "ポモドーロ",

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronRight } from 'lucide-react';
 import type { Task } from '../../types';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
@@ -27,6 +27,7 @@ export default function TaskList({ sidebarToggleButton, triggerNewTask }: { side
   }, [triggerNewTask]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
   const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [doneExpanded, setDoneExpanded] = useState(false);
 
   const allTags = useMemo(() => {
     const tagSet = new Set(state.settings.customTags);
@@ -141,9 +142,21 @@ export default function TaskList({ sidebarToggleButton, triggerNewTask }: { side
 
         {doneTasks.length > 0 && (
           <>
-            <div className="text-xs text-text-sub py-1 px-1 mt-2">{t('task.completed')} ({doneTasks.length})</div>
+            <button
+              onClick={() => setDoneExpanded(v => !v)}
+              className="flex items-center gap-1 text-xs text-text-sub py-1 px-1 mt-2 hover:text-text-main transition-colors w-full"
+            >
+              <motion.span
+                animate={{ rotate: doneExpanded ? 90 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="inline-flex"
+              >
+                <ChevronRight size={14} />
+              </motion.span>
+              {t('task.completed')} ({doneTasks.length})
+            </button>
             <AnimatePresence mode="popLayout">
-              {doneTasks.map(task => (
+              {doneExpanded && doneTasks.map(task => (
                 <TaskItem
                   key={task.id}
                   task={task}

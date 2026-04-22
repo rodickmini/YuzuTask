@@ -157,7 +157,7 @@ function MainContent() {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="bg-white rounded-3xl border border-warm-dark/50 p-5 h-full min-h-0"
+            className="bg-white rounded-3xl border border-warm-dark/50 h-full min-h-0 overflow-hidden"
           >
             <WorkLogList />
           </motion.div>

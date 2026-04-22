@@ -9,7 +9,7 @@
   },
   "nav": {
     "home": "Todos",
-    "worklog": "Records",
+    "worklog": "Docs",
     "weekly": "Report",
     "footprint": "Footprint",
     "settings": "Settings"
@@ -61,22 +61,31 @@
     }
   },
   "worklog": {
-    "title": "Work Logs",
+    "title": "Documents",
     "today": "Today",
     "contentPlaceholder": "What did you work on...",
     "duration": "Duration (min)",
     "date": "Date",
-    "record": "Record",
+    "record": "New",
     "cancel": "Cancel",
-    "emptyState": "No work logs yet, start recording~",
+    "emptyState": "No documents yet, start writing~",
     "emptyDay": "No records for this day~",
     "filter": "Filter:",
     "clearFilter": "Clear",
-    "added": "Work log added~",
-    "updated": "Work log updated~",
-    "deleted": "Log deleted",
-    "addWorkLog": "Add Work Log",
-    "editWorkLog": "Edit Work Log"
+    "added": "Document added~",
+    "updated": "Document updated~",
+    "deleted": "Document deleted",
+    "addWorkLog": "New Document",
+    "editWorkLog": "Edit Document",
+    "back": "Back",
+    "save": "Save",
+    "editorPlaceholder": "Write in Markdown...",
+    "emptyPreview": "Start writing and see the preview here...",
+    "untitled": "Untitled Document",
+    "selectDoc": "Select a document to view",
+    "noContent": "No content",
+    "editing": "Editing",
+    "preview": "Preview"
   },
   "pomodoro": {
     "title": "Pomodoro",
